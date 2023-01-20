@@ -1,0 +1,9 @@
+%dw 2.0
+
+type auto_138ed10f_ae46_4d24_83f0_eeef58bfe405_Input_Attributes = {|
+  statusCode: Number, 
+  headers: { _?: String }, 
+  reasonPhrase: String
+|} {"typeAlias": "HttpResponseAttributes",
+"typeId": "com.mulesoft.connectivity.telegram.rest.commons.api.operation.HttpResponseAttributes"}
+

@@ -1,0 +1,16 @@
+%dw 2.0
+
+type auto_7f05f07c_6cfa_4f85_9ba5_891dbd1c2cac_Output_Attributes = {|
+  number: Number, 
+  fromAddresses: Array<String>, 
+  toAddresses: Array<String>, 
+  ccAddresses: Array<String>, 
+  bccAddresses: Array<String>, 
+  replyToAddresses: Array<String>, 
+  headers: { _?: String }, 
+  subject: String, 
+  receivedDate?: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  sentDate?: DateTime {"typeId": "java.time.LocalDateTime"}
+|} {"typeAlias": "BaseEmailAttributes",
+"typeId": "org.mule.extension.email.api.attributes.BaseEmailAttributes"}
+

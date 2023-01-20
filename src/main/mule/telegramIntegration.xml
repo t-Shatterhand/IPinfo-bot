@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:telegram="http://www.mulesoft.org/schema/mule/telegram" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/telegram http://www.mulesoft.org/schema/mule/telegram/current/mule-telegram.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<flow name="getUpdates" doc:id="c3d905e7-7612-49c4-8ca0-d089c44180d2" initialState="started">
+		<scheduler doc:name="Once in 5 sec" doc:id="a8851992-052f-489f-9dbd-afb1185c5f6a" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Log at start" doc:id="a61ac081-0998-44ca-bf12-33d6778f1814" message='#["Started Processing telegram updates at" ++ now()]'/>
+		<os:retrieve doc:name="Retrieve lastProcessed ID" doc:id="8ba16a80-d1ee-4eaa-b700-2f06a1b5cb49" key="lastProcessedID" target="lastProcessedID">
+			<os:default-value ><![CDATA[0]]></os:default-value>
+		</os:retrieve>
+		<telegram:get-updates doc:name="Get Bot Updates" doc:id="1dbf6a5c-c8f9-4ab2-b72c-439036c7bf1d" config-ref="Telegram_Connector_Config" offset="#[vars.lastProcessedID as Number + 1]"/>
+		<ee:transform doc:name="Filter only needed" doc:id="f4661eaf-06c4-4b22-86a3-12d643144823">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var result = payload.result map (obj, index) -> {
+    update_id: obj.update_id,
+    chat_id: obj.message.from.id,
+    message: obj.message.text,
+    entity_types: obj.message.entities."type"
+}
+---
+result filter ((obj, index) -> obj.entity_types contains "bot_command")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="processUpdates" doc:id="2ad950a1-29ad-4963-862d-76df00063b72" name="processUpdates"/>
+		<logger level="INFO" doc:name="Log at exit" doc:id="f29785e1-f6dd-4d1b-a87c-e2c947ab5134" message='#["Finished Processing telegram updates at" ++ now()]'/>
+	</flow>
+	<flow name="processUpdates" doc:id="138ed10f-ae46-4d24-83f0-eeef58bfe405" >
+		<logger level="INFO" doc:name="Log at enter" doc:id="ccf00240-c064-4044-8dea-a7f2a063cefe" message='#["Started processing telegram commands"]' />
+		<foreach doc:name="Process Message" doc:id="34698013-92ae-4696-a184-3d13fd90a002" >
+			<logger level="INFO" doc:name="Log at start" doc:id="c4dcf497-9a45-43ec-b9ce-e0eb7ee939e6" message='#["Started processing telegram command"]'/>
+			<os:store doc:name="Store lastProcessed ID" doc:id="5d097b71-c3e6-4396-9a46-69a6b8516b22" key="lastProcessedID">
+				<os:value ><![CDATA[#[payload.update_id]]]></os:value>
+			</os:store>
+			<set-variable value="#[payload.chat_id]" doc:name="chat_id" doc:id="c702b8f4-1339-4736-96e7-3fa1071b8981" variableName="chat_id" />
+			<ee:transform doc:name="Split into text command" doc:id="a0f61cef-21ba-45c0-be63-a4de4ee4a931" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+import drop from dw::core::Arrays
+var text_split = payload.message splitBy " "
+---
+{
+    command: text_split[0],
+    command_params: drop(text_split, 1)
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="4212c95e-c2d4-4394-97d7-a5d007e01e6f" >
+				<when expression='#[payload.command == "/IP"]'>
+					<flow-ref doc:name="telegramIPgetValidate Flow" doc:id="3e376e22-35a7-4b10-8955-c769dc729314" name="telegramIPgetValidate"/>
+					<flow-ref doc:name="getCredentials Flow" doc:id="dd6e902d-bfb0-4880-9651-95fc42c5b782" name="getCredentials"/>
+					<flow-ref doc:name="requestAggregation Flow" doc:id="9ad73f01-002f-4090-89e6-1803a751f2f1" name="ipRequestAggregation"/>
+					<telegram:send-message doc:name="Send report message" doc:id="5f2c8e8c-15c2-4bb5-bda4-a943da999a7a" config-ref="Telegram_Connector_Config">
+						<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+var datacenter = (if (payload.datacenter == "") "unknown" else payload.datacenter)
+var hostnames = (if (payload.found_hostnames == "[]") "None" else (payload.found_hostnames joinBy (", ")))
+---
+{
+	chat_id: vars.chat_id,
+	text: "IP report:\nIP: " ++ payload.IP ++ "\nSite owner: " ++ (payload.owner default "unknown") ++ "\nUsage type: " ++
+	(payload.usage_type default "unknown") ++ "\nFound hostnames: " ++ hostnames ++ "\nCountry: " ++
+	(payload.country default "unknown") ++ "\nDatacenter: " ++  datacenter ++ "\nAbuseIPDB result:\nTotal times reported: " ++
+	payload.abuseIPDB.total_reports ++ "\nConfidence score: " ++ payload.abuseIPDB.confidence_score ++
+	"\nThreatjammer result:\nRisk level: " ++ payload.threatjammer.risk_level ++ "\nReason phrase: " ++
+	payload.threatjammer.reason_phrase ++ "\nCloudmersive result:\nIs bot: " ++ payload.cloudmersive.is_bot ++
+	"\nIs threat: " ++ payload.cloudmersive.is_threat ++ "\nThreat type if any:" ++ payload.cloudmersive.threat_type ++
+	"\nVirustotal result ratings:\nHarmless: " ++ payload.virustotal.ratings.harmless ++ "\nMalicious: " ++ 
+	payload.virustotal.ratings.malicious ++ "\nSuspicious: " ++ payload.virustotal.ratings.suspicious ++ "\nUndetected: " ++
+	payload.virustotal.ratings.undetected ++ "\nTimeout: " ++ payload.virustotal.ratings.timeout
+}]]]></telegram:send-text-message-request-content>
+					</telegram:send-message>
+					<logger level="INFO" doc:name="Log at exit" doc:id="cd26d6ad-1c2c-4028-b9ce-8ece2dce113a" message='#["Finished processing telegram /IP command"]'/>
+				</when>
+				<when expression='#[payload.command == "/start"]'>
+					<telegram:send-message doc:name="Send /start message" doc:id="f18bb459-562c-4fe1-8680-3f613ed4120c" config-ref="Telegram_Connector_Config">
+						<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Hello! This is an IP lookup bot made by Lesia Pokotyliuk and Ivan Kostroba as a MuleSoft Demo project.\nTry /help to get the list of commands."
+}]]]></telegram:send-text-message-request-content>
+					</telegram:send-message>
+					<logger level="INFO" doc:name="Log at exit" doc:id="2624e929-d76d-4844-a5b5-d5010e6d23a4" message='#["Finished processing telegram /start command"]'/>
+				</when>
+				<when expression='#[payload.command == "/help"]'>
+					<telegram:send-message doc:name="Send /help message" doc:id="fd73ce72-56a5-432e-9137-2662975873af" config-ref="Telegram_Connector_Config">
+						<telegram:send-text-message-request-content><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "/help:\nPossible commands are:\n/IP <ip> - perform security lookup on a particular IP address and return report." ++
+	"\n/site <website> - perform security lookup on particular website and its IP address and return report." ++
+	"\nExample commands: \n/IP 212.48.56.123; \n/site google.com"
+}]]]></telegram:send-text-message-request-content>
+					</telegram:send-message>
+					<logger level="INFO" doc:name="Log at exit" doc:id="0594a319-25b5-4508-a26b-7874e780b4a5" message='#["Finished processing telegram /help command"]'/>
+				</when>
+				<when expression='#[payload.command == "/site"]'>
+					<flow-ref doc:name="telegramSiteGetValidate Flow" doc:id="f41c9259-0428-479c-bfc7-bcbe161b58bc" name="telegramSiteGetValidate"/>
+					<flow-ref doc:name="getCredentials" doc:id="72ce8b43-3dbc-4eb0-846b-2b81b2700449" name="getCredentials"/>
+					<flow-ref doc:name="dnsLookup Flow" doc:id="ee1073a8-2636-4c4a-b8ce-3675930a7990" name="dnsLookup"/>
+					<flow-ref doc:name="siteRequestAggregation Flow" doc:id="487ebce5-95ba-48f6-b932-fad59028f6f0" name="siteRequestAggregation"/>
+					<flow-ref doc:name="ipRequestAggregation Flow" doc:id="5a58f7ea-f9b7-4f9e-83ca-2403b4b9e291" name="ipRequestAggregation"/>
+					<ee:transform doc:name="Add site result to IP result" doc:id="c8ccc917-6af4-43b9-9d72-1b5bdc2b9ff9" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"site": vars.siteToScan,
+	"siteLookup": {
+		"isClean": vars.siteLookupResult.CleanResult default "unknown",
+		"threatType": vars.siteLookupResult.WebsiteThreatType default "unknown",
+		"viruses": vars.siteLookupResult.FoundViruses default "None",
+		"siteResponseCode": vars.siteLookupResult.WebsiteHttpResponseCode default "500"
+	}
+} ++ payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<telegram:send-message doc:name="Send report message" doc:id="6145aa93-4ca1-4005-92e1-5dd1ac2a4c65" config-ref="Telegram_Connector_Config" >
+						<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+var datacenter = (if (payload.datacenter == "") "unknown" else payload.datacenter)
+var hostnames = (if (payload.found_hostnames == "[]") "None" else (payload.found_hostnames joinBy (", ")))
+---
+{
+	chat_id: vars.chat_id,
+	text: "Site report:\nSite: " ++ (vars.siteToScan default "") ++ "\nIs site clean: " ++ payload.siteLookup.isClean ++ "\nSite threat type: "
+	++ (payload.siteLookup.threatType default "unknown") ++ "\nViruses on site: " ++ (payload.siteLookup.viruses default "unknown") ++
+	"\nSite response code: " ++ (payload.siteLookup.siteResponseCode default "unknown") ++ "\nIP: "
+	++ payload.IP ++ "\nSite owner: " ++ (payload.owner default "unknown") ++ "\nUsage type: " ++
+	(payload.usage_type default "unknown") ++ "\nFound hostnames: " ++ hostnames ++ "\nCountry: " ++
+	(payload.country default "unknown") ++ "\nDatacenter: " ++  datacenter ++ "\nAbuseIPDB result:\nTotal times reported: " ++
+	payload.abuseIPDB.total_reports ++ "\nConfidence score: " ++ payload.abuseIPDB.confidence_score ++
+	"\nThreatjammer result:\nRisk level: " ++ payload.threatjammer.risk_level ++ "\nReason phrase: " ++
+	payload.threatjammer.reason_phrase ++ "\nCloudmersive result:\nIs bot: " ++ payload.cloudmersive.is_bot ++
+	"\nIs threat: " ++ payload.cloudmersive.is_threat ++ "\nThreat type if any:" ++ payload.cloudmersive.threat_type ++
+	"\nVirustotal result ratings:\nHarmless: " ++ payload.virustotal.ratings.harmless ++ "\nMalicious: " ++ 
+	payload.virustotal.ratings.malicious ++ "\nSuspicious: " ++ payload.virustotal.ratings.suspicious ++ "\nUndetected: " ++
+	payload.virustotal.ratings.undetected ++ "\nTimeout: " ++ payload.virustotal.ratings.timeout
+}]]]></telegram:send-text-message-request-content>
+					</telegram:send-message>
+					<logger level="INFO" doc:name="Log at exit" doc:id="7b85d837-debe-43c3-936b-d31c33df5b03" message='#["Finished processing telegram /site command"]'/>
+				</when>
+				<otherwise >
+					<telegram:send-message doc:name="Send unknown command message" doc:id="595f092a-32fb-4bb6-b03b-89134476544f" config-ref="Telegram_Connector_Config">
+				<telegram:send-text-message-request-content><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Invalid command! Check the list of commands by using /help"
+}]]]></telegram:send-text-message-request-content>
+			</telegram:send-message>
+					<logger level="INFO" doc:name="Log at exit" doc:id="6e182c16-f532-4fee-8718-52e7ae066214" message='#["Finished processing an unknown telegram command"]'/>
+				</otherwise>
+			</choice>
+		</foreach>
+		<logger level="INFO" doc:name="Log at exit" doc:id="9f5e261c-22b8-4895-bc3d-778572ee651d" message='#["Finished processing telegram commands"]' />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8abf5358-a49e-424f-97cf-a27bf5567492" type="APP:DNS_FAILED">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="ee679173-72f7-4e5e-b1b6-616305f3cf8c" message='#["Telegram reference to DNS lookup flow failed due to DNS error code"]' />
+				<telegram:send-message doc:name="Send error message" doc:id="db4b4e11-621f-4550-8c56-1aa78291ecf1" config-ref="Telegram_Connector_Config" >
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "DNS lookup on current site failed. The site may be inexistent."
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="telegramSiteGetValidate" doc:id="6b7124ce-dbe5-4b6b-a73b-eaf112f20f66" >
+		<set-variable value="#[payload.command_params[0]]" doc:name="siteToScan" doc:id="ec1b4079-8639-4672-9dbc-eb3646612fdf" variableName="siteToScan" />
+		<validation:is-not-null doc:name="Is siteToScan present" doc:id="d5c588e3-a2da-4e91-a362-235f18080ee6" value="#[vars.siteToScan]" message='#["No site to scan specified"]'>
+			<error-mapping sourceType="VALIDATION:NULL" targetType="APP:SITE_NULL" />
+		</validation:is-not-null>
+		<validation:is-not-blank-string doc:name="Is siteToScan not empty" doc:id="5bcc8916-3f8e-46b1-b604-83372955d6b5" value="#[vars.siteToScan]" message='#["Empty site field specified"]'>
+			<error-mapping targetType="APP:SITE_EMPTY" sourceType="VALIDATION:BLANK_STRING"/>
+		</validation:is-not-blank-string>
+		<logger level="INFO" doc:name="Log after validated" doc:id="38b39bb7-d7f8-44fa-a1c5-4f8975b037a2" message='#["site=" ++ (vars.siteToScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b7e3ad46-177f-4bfd-be6e-b8948ed2c5d1" type="APP:SITE_NULL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="00f9c7d4-9d27-4c82-81aa-ef29379872fa" message='#["Failed processing telegram request due to no site specified"]' />
+				<telegram:send-message doc:name="Send error message" doc:id="2defdadd-eb5e-4974-89b2-5e06badc19d9" config-ref="Telegram_Connector_Config" >
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Error! You have specified no site to perform lookup on."
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			
+</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8ae580a0-bef4-4c77-89e7-fd59ded15e15" type="APP:SITE_EMPTY" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="10c8ed79-e2fe-4a2c-9f84-567023b14bbc" message='#["Failed processing telegram request due to empty site specified"]' />
+				<telegram:send-message doc:name="Send error message" doc:id="27f1bba2-c1db-43e4-b5ce-adab070cec27" config-ref="Telegram_Connector_Config" >
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Error! You have specified no site to perform lookup on."
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			
+</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="telegramIPgetValidate" doc:id="0d3c058d-dbe9-445b-a51d-0091131c6ba2">
+		<set-variable value="#[payload.command_params[0]]" doc:name="IPtoScan" doc:id="6e62b2ec-5249-4e5e-8fe6-f1113c7f84f2" variableName="IPtoScan" />
+		<validation:is-not-null doc:name="IP not null" doc:id="5f6ada91-434e-4096-af26-a41cd6d98e05" value="#[vars.IPtoScan]" message='#["Error - IP field is null!"]'>
+			<error-mapping targetType="APP:IP_NULL" />
+		</validation:is-not-null>
+		<validation:is-ip doc:name="IP valid" doc:id="71a28ae1-b9db-41e1-84fc-cc1df8d1817a" ip="#[vars.IPtoScan]" message='#["Error - IP not valid!"]'>
+			<error-mapping targetType="APP:IP_INVALID" />
+		</validation:is-ip>
+		<validation:is-not-denied-ip doc:name="IP not local network" doc:id="7da79506-19b9-4cdb-a663-5162e422c998" ipAddress="#[vars.IPtoScan]" message='#["Error - IP in local network!"]'>
+			<error-mapping targetType="APP:IP_LOCAL" />
+			<validation:deny-list>
+				<validation:ips>
+					<validation:ip value="127.0.0.1" />
+					<validation:ip value="192.168.0.1" />
+					<validation:ip value="192.168.31.1" />
+					<validation:ip value="127.0.1.1" />
+				</validation:ips>
+			</validation:deny-list>
+		</validation:is-not-denied-ip>
+		<logger level="INFO" doc:name="Log after validated" doc:id="3e5bb55e-1e7d-4983-9936-47b3598f427a" message='#["IP=" ++ (vars.IPtoScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="08a7452e-9ac7-4abf-8418-06a96d357b58" type="APP:IP_NULL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="853524e3-26d4-4356-b75a-f830181b3578" message='#["Failed processing telegram request due to no IP specified"]'/>
+				<telegram:send-message doc:name="Send error message" doc:id="4b8d6b93-cbbc-42ae-bd9c-078d5969a092" config-ref="Telegram_Connector_Config">
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Error! You have specified no IP to perform lookup on."
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e9cb19a8-827c-497e-93e7-349aa8f4db1a" type="APP:IP_INVALID">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="ae6c3838-7931-49ae-97ab-19d0d001fb74" message='#["Failed processing telegram request due to invalid IP specified"]' />
+				<telegram:send-message doc:name="Send error message" doc:id="d5a2b7db-53ca-48e5-94ce-d835fb91cea6" config-ref="Telegram_Connector_Config" >
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Error! You have specified an invalid IP! Format: 117.25.56.104"
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="66f03893-17ec-4718-9ecd-b9e9649bfb95" type="APP:IP_LOCAL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="a5f1e71a-7962-4845-af76-8446bb1da359" message='#["Failed processing telegram request due to local network IP specified"]' />
+				<telegram:send-message doc:name="Send error message" doc:id="d6627f9e-ac55-4fb4-8326-9b95f4be6e1c" config-ref="Telegram_Connector_Config" >
+					<telegram:send-text-message-request-content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	chat_id: vars.chat_id,
+	text: "Error! You have specified a local network IP! Try a normal one. Format: 117.25.56.104"
+}]]]></telegram:send-text-message-request-content>
+				</telegram:send-message>
+			</on-error-propagate>
+		</error-handler>
+	
+</flow>
+</mule>

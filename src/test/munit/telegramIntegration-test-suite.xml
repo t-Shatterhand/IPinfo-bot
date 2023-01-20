@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="telegramIntegration-test-suite.xml" />
+	<munit:test name="telegramIntegration-test-suite-telegramSiteGetValidateTest" doc:id="a1be8bc8-0ff1-4975-8f82-233b33a6afdf" description="Test">
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"google.com"&#10;	]&#10;}]' doc:name="Set google.com Payload" doc:id="1334546f-5b25-4efb-9775-82b0789a8fb1" />
+			<flow-ref doc:name="telegramSiteGetValidate Flow" doc:id="a8eeb13a-efdc-4228-963a-1479f7b82316" name="telegramSiteGetValidate"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="922260a9-983c-485a-b002-5100a55777a0" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="38b39bb7-d7f8-44fa-a1c5-4f8975b037a2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue='#["site=" ++ (vars.siteToScan default " ") ++ "successfully validated"]' attributeName="message" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="vars.siteToScan == google.com" doc:id="ebb83efd-1c40-4967-a776-1bc74245e55a" actual="#[vars.siteToScan]" expected='#["google.com"]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="telegramSiteGetValidateTest-invalid-site_null" doc:id="ee25eb7d-9739-4bf5-bc7d-80af35e3b7b2" description="Test" expectedErrorType="APP:SITE_NULL">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock error telegram message" doc:id="d10941b0-e863-464d-af7d-2803139891b4" processor="telegram:send-message">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2defdadd-eb5e-4974-89b2-5e06badc19d9" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;	]&#10;}]' doc:name="Set null Payload" doc:id="e3d89fb7-17c1-4270-81d5-6824c3297e22" />
+			<flow-ref doc:name="telegramSiteGetValidate Flow" doc:id="cf1ff66e-94e1-4472-a100-c8f34d5bb9ec" name="telegramSiteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="telegramSiteGetValidateTest-invalid-site_empty" doc:id="4b472a67-a3c5-4ae4-8d98-7f1611adca19" description="Test" expectedErrorType="APP:SITE_EMPTY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock error telegram message" doc:id="44ad94e6-6aa7-4ea2-8697-2a21338f3b55" processor="telegram:send-message" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="27f1bba2-c1db-43e4-b5ce-adab070cec27" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		""&#10;	]&#10;}]' doc:name="Set empty Payload" doc:id="0b522ea2-a655-4b61-b4b8-a81c76efdbad" />
+			<flow-ref doc:name="telegramSiteGetValidate Flow" doc:id="8ed6611c-bc4b-4269-8b06-dfb7c6167b47" name="telegramSiteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="telegramIPgetValidateTest-valid" doc:id="ef8e3cd0-a8a3-4d47-bd4b-c58378d5c317" description="Test">
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"125.32.65.43"&#10;	]&#10;}]' doc:name="Set valid IP Payload" doc:id="e078532b-f5ae-407f-a3d9-5e6e3f7babcb" />
+			<flow-ref doc:name="telegramIPgetValidate Flow" doc:id="e2440180-44b3-45d9-8db5-87f0663682ae" name="telegramIPgetValidate"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="1efb277b-6197-430c-9c29-b430ed11fea6" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="3e5bb55e-1e7d-4983-9936-47b3598f427a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue='#["IP=" ++ (vars.IPtoScan default " ") ++ "successfully validated"]' attributeName="message" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name='vars.IPtoScan == "125.32.65.43"' doc:id="14cc6751-854d-444c-9772-f50d1d4cdf1f" actual="#[vars.IPtoScan]" expected='#["125.32.65.43"]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="telegramIPgetValidateTest-invalid-ip_invalid" doc:id="ea04841f-3708-442d-95b3-09541b648ded" description="Test" expectedErrorType="APP:IP_INVALID">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock error telegram message" doc:id="606d7764-39a0-430a-8065-55426c74466d" processor="telegram:send-message">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d5a2b7db-53ca-48e5-94ce-d835fb91cea6" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"125.32.65"&#10;	]&#10;}]' doc:name="Set invalid IP Payload" doc:id="d5dd4389-c8dd-42c9-8e0a-0ade907d3281" />
+			<flow-ref doc:name="telegramIPgetValidate Flow" doc:id="4f8b594b-8d50-494f-8d78-503b179a1e36" name="telegramIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="telegramIPgetValidateTest-invalid-ip_null" doc:id="e035482a-9902-4f42-9990-3c373cf25b6d" description="Test" expectedErrorType="APP:IP_NULL" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock error telegram message" doc:id="c3ea39a0-2375-47ef-ac05-b26007dcab5b" processor="telegram:send-message" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4b8d6b93-cbbc-42ae-bd9c-078d5969a092" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;	]&#10;}]' doc:name="Set Empty IP Payload" doc:id="9f5e4d27-c0fa-4021-8ac6-b891c17db21a" />
+			<flow-ref doc:name="telegramIPgetValidate Flow" doc:id="27ee1148-084d-48d6-9e5a-f7902902f966" name="telegramIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="telegramIPgetValidateTest-invalid-ip_local" doc:id="3df54b99-f83e-4062-a77d-677cdb00b2b2" description="Test" expectedErrorType="APP:IP_LOCAL" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock error telegram message" doc:id="bd6db33b-25ea-4a7f-9a80-0b1b92f34c09" processor="telegram:send-message" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d6627f9e-ac55-4fb4-8326-9b95f4be6e1c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"127.0.0.1"&#10;	]&#10;}]' doc:name="Set local IP Payload" doc:id="4b6f10a0-2710-4a1b-a06b-dac18a82c8be" />
+			<flow-ref doc:name="telegramIPgetValidate Flow" doc:id="da0acffa-adb1-4d4f-bd62-0bc7d24c2ce9" name="telegramIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="getUpdatesTest-valid" doc:id="547251ad-bd15-423a-a89b-b1e17bd1ae3b" description="Test">
+		<munit:behavior >
+			<set-variable value='#["10000"]' doc:name="lastProcessedID" doc:id="4c0be537-4b83-4506-a6c7-87892f71c2ba" variableName="lastProcessedID"/>
+			<munit-tools:mock-when doc:name="Mock objectStore variable retrieve" doc:id="c7815022-9578-4c64-9e97-4a3145ae15fc" processor="os:retrieve">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Retrieve lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8ba16a80-d1ee-4eaa-b700-2f06a1b5cb49" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="target" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="lastProcessedID" value="#[vars.lastProcessedID]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set telegram updates payload" doc:id="75143e38-e8f8-480e-bc0d-6b14eb1fa955" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ok":true,
+	"result":[
+		
+	]
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock telegram updates call" doc:id="0da89728-9806-4b1a-961b-92dad2ec313f" processor="telegram:get-updates">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get Bot Updates" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1dbf6a5c-c8f9-4ab2-b72c-439036c7bf1d" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock flow reference" doc:id="e1c606bd-c785-4091-b4c2-07fafa1af36a" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="processUpdates" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2ad950a1-29ad-4963-862d-76df00063b72" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="processUpdates" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="getUpdates Flow Reference" doc:id="2fd08889-a444-4a1a-81cf-b835614997ce" name="getUpdates"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="8fba9cfd-fee8-4d35-b424-58c31467927f" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f29785e1-f6dd-4d1b-a87c-e2c947ab5134" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name='vars.lastProcessedID == "10000"' doc:id="5607b403-14eb-4d6d-b17b-f98a52b70079" actual="#[vars.lastProcessedID]" expected='#["10000"]'/>
+			<munit-tools:assert-equals doc:name="Assert payload is empty array" doc:id="f792acc5-1420-4de7-92fd-4dcfa8e48be4" actual="#[payload]" expected='#[%dw 2.0&#10;output application/json&#10;---&#10;[]]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdatesTest-valid-help_command" doc:id="bbd5040f-d08f-4d92-a6bc-0f6f6a0c838f" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set generic message" doc:id="0c5ea48c-21fe-4bce-b5a7-632ae381801d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/help",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock objectStore variable store" doc:id="1a2c065d-4fea-4488-a6fa-2354789de493" processor="os:store">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Store lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d097b71-c3e6-4396-9a46-69a6b8516b22" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock telegram help message" doc:id="0e483e17-dfaa-4039-8509-1b122a5e70b6" processor="telegram:send-message">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send /help message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fd73ce72-56a5-432e-9137-2662975873af" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="Set /help command" doc:id="c854f054-96a3-410b-8c05-c5efb459bc5b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[[
+  {
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/help",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }
+]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="processUpdates Flow" doc:id="f3586b27-6fca-484a-a42d-f0d83da9c9e2" name="processUpdates"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify logger after command call" doc:id="07f48529-2251-4619-9c04-f257b56eab4d" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0594a319-25b5-4508-a26b-7874e780b4a5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdatesTest-valid-start_command" doc:id="9a911e59-5bf5-4c5a-9df3-ed473e0d59ed" description="Test" >
+		<munit:behavior >
+			<ee:transform doc:name="Set generic message" doc:id="5e09c541-7f20-4a82-ab0c-125bbd174994" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/start",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock objectStore variable store" doc:id="f2914349-f57f-43c9-9d9a-c04ed76985da" processor="os:store" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Store lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d097b71-c3e6-4396-9a46-69a6b8516b22" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock telegram start message" doc:id="6f917f18-24b2-44c9-821c-8458350ece80" processor="telegram:send-message" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send /start message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f18bb459-562c-4fe1-8680-3f613ed4120c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="Set /start command" doc:id="e553d177-f819-41f4-b293-4359d97c97ef" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[[
+  {
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/start",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }
+]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="processUpdates Flow" doc:id="7f2f656b-f7b3-4c9b-be83-0d26cc3d2911" name="processUpdates" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify logger after command call" doc:id="fe59f996-9470-46bc-9053-fc4dba765952" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2624e929-d76d-4844-a5b5-d5010e6d23a4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdatesTest-valid-unknown_command" doc:id="342c0e90-5b98-4511-9f22-b5baf8170b2c" description="Test" >
+		<munit:behavior >
+			<ee:transform doc:name="Set generic message" doc:id="dd9ad7da-7aeb-4197-b140-e85c65fca96d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/aaa",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock objectStore variable store" doc:id="90e7d6ef-d879-4d6d-800b-1f61492c20cf" processor="os:store" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Store lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d097b71-c3e6-4396-9a46-69a6b8516b22" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock telegram unknown command message" doc:id="ba382b5d-f199-4d5a-878b-d109ac530d80" processor="telegram:send-message" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send unknown command message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="595f092a-32fb-4bb6-b03b-89134476544f" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="Set /aaa command" doc:id="ae2eb6df-0b5c-4350-9aae-7e9f48d8f1c8" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[[
+  {
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/aaa",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }
+]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="processUpdates Flow" doc:id="d41e54d5-9427-4015-9ecc-3b22186a82ac" name="processUpdates" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify logger after command call" doc:id="8fab8195-ec1e-4789-b6df-7df3d1a2ec22" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="6e182c16-f532-4fee-8718-52e7ae066214" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdatesTest-valid-IP_command" doc:id="ce9ec844-9506-4301-ae16-364db187d850" description="Test" >
+		<munit:behavior >
+			<ee:transform doc:name="Set generic message" doc:id="89b39103-b8e4-49b3-a4b7-348d4afcca96" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/IP 111.111.111.111",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock objectStore variable store" doc:id="46b179da-d278-4eb4-a9a1-884b4e1faf3f" processor="os:store" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Store lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d097b71-c3e6-4396-9a46-69a6b8516b22" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock IP validation Flow reference" doc:id="33c6d9e2-2b25-401e-8e86-1ab79441ddb5" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="telegramIPgetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="3e376e22-35a7-4b10-8955-c769dc729314" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="telegramIPgetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock IP requests Flow reference" doc:id="494fe63b-8118-4fea-bb19-8e38c07143a7" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="requestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9ad73f01-002f-4090-89e6-1803a751f2f1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock telegram IP report message" doc:id="e8a9812d-bc25-4c7b-9b7a-5b390984501f" processor="telegram:send-message">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send report message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5f2c8e8c-15c2-4bb5-bda4-a943da999a7a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="Set /IP command" doc:id="e28527d0-cd30-4426-8fcd-829b64b3757b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[[
+  {
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/IP 111.111.111.111",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }
+]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="processUpdates Flow" doc:id="f0e951bf-7942-4bc6-95cb-fa8769c4fbe8" name="processUpdates" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify logger after command call" doc:id="58321cf9-9a16-498a-b9db-25d4af77b561" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cd26d6ad-1c2c-4028-b9ce-8ece2dce113a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdatesTest-valid-site_command" doc:id="d09522cd-52a5-4d6e-9fda-9a053894eeca" description="Test" >
+		<munit:behavior >
+			<ee:transform doc:name="Set generic message" doc:id="174486a0-afc1-474a-a2dc-63351b430f29" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/site google.com",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock objectStore variable store" doc:id="84c9367e-5adb-43ae-a41f-36db35fd649a" processor="os:store" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Store lastProcessed ID" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d097b71-c3e6-4396-9a46-69a6b8516b22" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="lastProcessedID" attributeName="key" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock site validation Flow reference" doc:id="726e66c6-a791-4630-9855-56a3ef87e7a4" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="telegramSiteGetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f41c9259-0428-479c-bfc7-bcbe161b58bc" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="telegramSiteGetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock DNS lookup Flow reference" doc:id="ef8d5de0-6a8d-4bc3-bdc2-a6ae2cadad4a" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dnsLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ee1073a8-2636-4c4a-b8ce-3675930a7990" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="dnsLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock site lookup Flow reference" doc:id="81fd81d5-9050-4a2c-8021-bfc8ca18541f" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="siteRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="487ebce5-95ba-48f6-b932-fad59028f6f0" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="siteRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock IP requests Flow reference" doc:id="e6e49333-d942-40cb-8e26-a8a887160127" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ipRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5a58f7ea-f9b7-4f9e-83ca-2403b4b9e291" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[payload]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock telegram site report message" doc:id="8b06021e-83c6-4a4c-9260-4c2b343f7b48" processor="telegram:send-message">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send report message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="6145aa93-4ca1-4005-92e1-5dd1ac2a4c65" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Telegram_Connector_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="Set /site command" doc:id="960a6728-b577-424c-9f1a-6f7bf03bed94" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[[
+  {
+    "update_id": 11111,
+    "chat_id": 11111,
+    "message": "/site google.com",
+    "entity_types": [
+      "bot_command",
+      "url"
+    ]
+  }
+]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="processUpdates Flow" doc:id="179483f6-5cde-4bac-b66d-f340a8b1adac" name="processUpdates" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify logger after command call" doc:id="339479ef-4394-4d45-a362-9403ce3bb745" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7b85d837-debe-43c3-936b-d31c33df5b03" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

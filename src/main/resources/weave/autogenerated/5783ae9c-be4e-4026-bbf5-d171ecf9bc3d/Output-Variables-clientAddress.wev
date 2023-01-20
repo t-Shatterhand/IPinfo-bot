@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_5783ae9c_be4e_4026_bbf5_d171ecf9bc3d_Output_Variables_clientAddress = String
+

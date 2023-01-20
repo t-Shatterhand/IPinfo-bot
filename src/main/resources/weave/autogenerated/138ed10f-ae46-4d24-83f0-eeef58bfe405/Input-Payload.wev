@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_138ed10f_ae46_4d24_83f0_eeef58bfe405_Input_Payload = Array<{|  update_id: Number {"typeId": "int"},   chat_id: Number {"typeId": "int"},   message: String,   entity_types: Array<String>
+|}>
+

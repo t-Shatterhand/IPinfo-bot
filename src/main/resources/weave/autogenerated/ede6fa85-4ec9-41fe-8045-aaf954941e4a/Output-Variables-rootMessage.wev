@@ -1,0 +1,16 @@
+%dw 2.0
+
+type auto_ede6fa85_4ec9_41fe_8045_aaf954941e4a_Output_Variables_rootMessage = {|
+  payload: Array<{|    update_id: Number {"typeId": "int"},     chat_id: Number {"typeId": "int"},     message: String,     entity_types: Array<String>
+  |}>, 
+  attributes: com_mulesoft_connectivity_telegram_rest_commons_api_operation_HttpResponseAttributes
+|} {"typeId": "org.mule.runtime.api.message.Message"}
+type com_mulesoft_connectivity_telegram_rest_commons_api_operation_HttpResponseAttributes = {|
+  statusCode: Number, 
+  headers: { _?: String }, 
+  reasonPhrase: String
+|} {"typeAlias": "HttpResponseAttributes",
+"typeId": "com.mulesoft.connectivity.telegram.rest.commons.api.operation.HttpResponseAttributes"}
+
+
+

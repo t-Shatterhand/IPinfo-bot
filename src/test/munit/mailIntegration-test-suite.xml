@@ -1,0 +1,1079 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="mailIntegration-test-suite.xml" />
+	<munit:test name="mailIPgetValidateTest-valid" doc:id="b798f056-1c20-4a5e-a6df-188acba73415" description="Test">
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"125.32.65.43"&#10;	]&#10;}]' doc:name="Set valid IP Payload" doc:id="62174495-931d-4311-9d8a-1af520a5b3ed" />
+			<flow-ref doc:name="mailIPgetValidate" doc:id="0e7eae62-316b-42b1-b628-b7561f60e2dd" name="mailIPgetValidate"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="2e48983a-7673-4f29-bc04-c9b0fc340e2e" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ed284ddf-b9ac-4d9d-b7e2-46f613bf84fa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="IPtoScan==125.32.65.43" doc:id="475c2300-765d-47d3-becb-32addc98d930" actual="#[vars.IPtoScan]" expected='#["125.32.65.43"]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mailIPgetValidateTest-invalid-IP_null" doc:id="8a4b840f-8522-443f-ac68-5b14b804dafa" description="Test" expectedErrorType="APP:IP_NULL">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message" doc:id="69f5787d-9de8-4db8-a8f8-7c857c090b12" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d57ec3f-4947-49cc-9c3c-919015ee3f91" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No IP specified" attributeName="subject" />
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d57ec3f-4947-49cc-9c3c-919015ee3f91" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No IP specified" attributeName="subject" />
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d57ec3f-4947-49cc-9c3c-919015ee3f91" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No IP specified" attributeName="subject" />
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d57ec3f-4947-49cc-9c3c-919015ee3f91" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No IP specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;	]&#10;}]' doc:name="Set null IP Payload" doc:id="4dc980b7-e99a-4ffa-a132-686116ed0ec4" />
+			<flow-ref doc:name="mailIPgetValidate" doc:id="a9dc0e5a-b740-41cd-8e16-1357dde139df" name="mailIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="mailIPgetValidateTest-invalid-IP_invalid" doc:id="908ac69c-bf52-4131-a297-78a1133d72ee" description="Test" expectedErrorType="APP:IP_INVALID">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message" doc:id="4f1b6fb1-f67a-4ac3-9b42-9838810969ec" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d0758d8-ebda-4901-9703-cf30fc9867ac" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="Invalid IP specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"125.32.65"&#10;	]&#10;}]' doc:name="Set invalid IP Payload" doc:id="02b5e5de-5570-4c10-8083-c300fa62da8a" />
+			<flow-ref doc:name="mailIPgetValidate" doc:id="96320a02-736c-468a-96dd-c92db153e955" name="mailIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="mailIPgetValidateTest-invalid-IP_local" doc:id="b662fa9d-b1ff-4c69-9bde-91778efae2dd" description="Test" expectedErrorType="APP:IP_LOCAL">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message" doc:id="a88e4bed-e146-4926-a61e-6ebef740a246" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="19f15da6-cc4d-4a72-acc7-6bc8050e9cde" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="Local IP specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		"127.0.0.1"&#10;	]&#10;}]' doc:name="Set local IP Payload" doc:id="96e80b23-fa6d-4e08-9f55-2f533590d6d6" />
+			<flow-ref doc:name="mailIPgetValidate" doc:id="5af87e87-6b00-4e54-a7a1-84b450a33e92" name="mailIPgetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="mailSiteGetValidateTest-valid" doc:id="4f2e0cf1-2e6c-4b87-9ad9-1da3dcb33f4d" description="Test">
+		<munit:execution>
+			<set-payload value='#[{&#10;	command_params: [&#10;		"google.com"&#10;	]&#10;}]' doc:name="Set valid site Payload" doc:id="564d9d4d-32f2-404d-9a39-5a59d42272cd" />
+			<flow-ref doc:name=" mailSiteGetValidate" doc:id="1871454c-00cc-42ab-beea-c665278add77" name="mailSiteGetValidate" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="22afb35f-93cf-4664-9d9d-8135a156cee4" processor="logger">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4cd2d7e6-aa20-4d3c-ab28-9d33f28a58e7" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="siteToScan==google.com" doc:id="54ee3bbe-4a1c-46bb-adb9-6f08b3c8a558" actual="#[vars.siteToScan]" expected='#["google.com"]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mailSiteGetValidateTest-invalid-site_null" doc:id="db9db97b-076e-41b9-9fc3-b9c8c995f3d8" description="Test" expectedErrorType="APP:SITE_NULL">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message" doc:id="767f61a3-361c-479b-8147-a54a8f0ae878" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2c097913-7d90-4b64-a040-4c07da371eb6" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No site specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		&#10;	]&#10;}]' doc:name="Set null site Payload" doc:id="12438f90-02de-40f6-b459-7e31241f88e3" />
+			<flow-ref doc:name="mailSiteGetValidate" doc:id="8d009a01-e232-48ec-9b88-94be3a92d14c" name="mailSiteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="mailSiteGetValidateTest-invalid-site_empty" doc:id="4ef80933-2b4f-4889-a8fb-e204c97864e0" description="Test" expectedErrorType="APP:SITE_EMPTY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message" doc:id="711f32f8-8843-4922-9a66-55ec35a20aa0" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="3a2508b5-60b5-4406-8094-cbcf7a9971db" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="Empty site specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;	command_params: [&#10;		" "&#10;	]&#10;}]' doc:name="Set empty site Payload" doc:id="1b5b80cc-df31-4c55-b428-5fdff62a57f7" />
+			<flow-ref doc:name="mailSiteGetValidate" doc:id="9fb68db0-f408-47f3-9f66-4a1aca62b601" name="mailSiteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-valid-IP_command" doc:id="05fbae09-4130-4c81-9e79-5524d59b0219" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set mailIPgetValidate response" doc:id="81ab825d-a42f-4e29-8ce5-e646cd77283b" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="mailIP" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	command_params: [
+		"118.25.6.39"
+	]
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="mailIPgetValidate flow" doc:id="5875fc22-abb2-4fc6-9ef1-d394e03c1da8" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mailIPgetValidate" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0c99009d-1ac9-45dd-b5d1-863e0011f107" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="mailIPgetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.mailIP]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="getCredentials flow" doc:id="eb0dc8ba-4139-443c-b910-939cd7626cc8" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="getCredentials Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="3cb49161-8800-49a5-a700-0f99462ac39b" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set ipRequestAggregation response" doc:id="0774d5f1-e621-44cc-9a4b-2638cb330b4e" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="IPaggregationResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IP": "118.25.6.39",
+  "owner": "Shenzhen Tencent Computer Systems Company Limited",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "CN",
+  "datacenter": "/v1/datacenter/TENCENT_CLOUD",
+  "abuseIPDB": {
+    "total_reports": 1,
+    "confidence_score": 8
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "harmless, clean",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "undetected, unrated",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="ipRequestAggregation flow" doc:id="00655551-7fe4-455d-9f5e-8dda8180e93c" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ipRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="63be51be-df61-4787-9147-945d839bbf7f" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.IPaggregationResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set ipEmailMessage" doc:id="4b46797a-73f7-409e-8a54-735c7a3410cc" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="ipEmailMessage" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+response: "IP: 3.3.3.3
+Site owner: unknown
+Usage type: Data Center/Web Hosting/Transit
+Found hostnames: []
+Country: US
+Datacenter: /v1/datacenter/AMAZON_AWS
+AbuseIPDB result:
+Total times reported: 0
+Confidence score: 0
+Threatjammer result:
+Risk level: MEDIUM
+Reason phrase: Found in one or more denylist datasets.
+Cloudmersive result:
+Is bot: false
+Is threat: false
+Threat type if any:
+Virustotal result ratings:
+Harmless: 82
+Malicious: 1
+Suspicious: 0
+Undetected: 12
+Timeout: 0
+"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="email message " doc:id="40f57d3b-b0d7-4dc5-8d31-b44e9cd0b95d" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send report message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="926c12e3-4a76-4de1-9b9a-25685bce2859" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="IP report" attributeName="subject" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.ipEmailMessage]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="92cbb8c2-bd80-4c62-8431-f44b3d71cc7e" variableName="clientAddress"/>
+			<set-payload value='#["/IP 118.25.6.39"]' doc:name="Set command Payload" doc:id="111f34d1-0e8d-413b-8318-148d4fb0179b" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="63e2e6e3-d834-47eb-b008-e071aabf9c49" name="processAndValidateCommand"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="49f909ce-5353-42fe-bd4c-d415e17adf1a" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fbf8deee-28cb-4333-8e67-c87754b8daaf" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="03bc9df3-eed3-4fad-8499-bad6e83f34cb" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-valid-help_command" doc:id="8fbca6bb-56a8-4a3f-8651-72be20949be9" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set /help response" doc:id="2bac2d6f-5a66-4d2a-8ab7-a319411d8344" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="help" ><![CDATA[%dw 2.0
+output application/json
+---
+{ response:
+"/help:
+Possible commands are:
+/IP <ip> - perform security lookup on a particular IP address and return report.
+/site <website> - perform security lookup on particular website and its IP address and return report.
+Example commands: /IP 212.48.56.123; /site google.com"
+
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock email message " doc:id="689af5dd-1529-40d3-84de-2388eeb5ef93" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send help message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b3ae7e59-7b98-4df3-8162-9f50081838db" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="/help message" attributeName="subject" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.help]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="c331abcb-274b-444f-aa29-0db9e45e8f17" variableName="clientAddress"/>
+			<set-payload value='#["/help"]' doc:name="Set command Payload" doc:id="e829e078-d060-4008-a83f-83825fdd4ba4" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="330b041a-af05-412e-9091-452f14496ad9" name="processAndValidateCommand" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger of flow call" doc:id="56d519a2-e34c-41cc-953b-824bd86d2430" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2574b329-be55-40bc-8268-a1e0d1f7701d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="83c8a420-409f-4c77-bc0b-2b69fbfbea01" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-valid-site_command" doc:id="49013a0d-f2ea-4f89-89b9-f1125d460fea" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set mailSiteGetValidate response" doc:id="7b88b8b4-c1cc-4fd4-ac92-cd740b6cce16" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="mailSite" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	command_params: [
+		"google.com"
+	]
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="mailSitegGetValidate flow" doc:id="a81f11d6-3ca6-44a3-b047-9cf64e1bb597" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mailSiteGetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8a7bc6b5-e85b-46ac-a1d2-010f40889762" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="mailSiteGetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.mailSite]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="getCredentials flow" doc:id="e9be495d-59a5-4bb8-a0e2-40937d888b50" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="09c8becb-f608-409f-b444-adb936864862" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set dnsLookup response" doc:id="53948e81-94e1-4c27-a9f8-055d0bc574a0" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="dnsLookupResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "timestamp": 1665475908382,
+    "apiStatus": "success",
+    "apiCode": 200,
+    "meta": {
+        "url": "https://names.com/LOL.com",
+        "test": {
+            "id": "d4k7sryy04jtqmqjcti2zz3dtsfn68ya"
+        }
+    },
+    "data": {
+        "A": [
+            {
+                "address": "199.250.218.241",
+                "ttl": 300
+            }
+        ],
+        "MX": [
+            {
+                "exchange": "names.com",
+                "priority": 0
+            }
+        ],
+        "NS": [
+            "ns2.inmotionhosting.com",
+            "ns1.inmotionhosting.com"
+        ],
+        "SOA": {
+            "nsname": "ns1.inmotionhosting.com",
+            "hostmaster": "machinemessages.forum.inmotionhosting.com",
+            "serial": 2022100201,
+            "refresh": 3600,
+            "retry": 1800,
+            "expire": 1209600,
+            "minttl": 86400
+        },
+        "TXT": [
+            [
+                "v=spf1 ip4:199.250.218.241 +a +mx -all"
+            ]
+        ]
+    }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="dnsLookup flow" doc:id="cc547908-96f2-4251-aa9c-28eb59f9bc98" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dnsLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="17c98cf4-d6e8-4e50-8436-bc0a5f02b7be" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="dnsLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.dnsLookupResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set siteRequestAggregation response" doc:id="4e48cc46-73c6-4108-8ad8-9928440121af" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="siteLookup" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "CleanResult": "true",
+    "WebsiteThreatType": "None",
+    "FoundViruses": "null",
+    "WebsiteHttpResponseCode": "200"
+}
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="siteRequestAggregation flow" doc:id="79450736-9489-4cad-8fa7-5f00abd63059" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="siteRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="191e3840-0588-423a-b893-7e7b4f3a08e3" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="siteRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.siteLookup]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set ipRequestAggregation response" doc:id="20023753-37bf-4428-bbfa-33d2fb76bbe5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="IPaggregationResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IP": "142.251.163.113",
+  "owner": "Shenzhen Tencent Computer Systems Company Limited",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "CN",
+  "datacenter": "/v1/datacenter/TENCENT_CLOUD",
+  "abuseIPDB": {
+    "total_reports": 1,
+    "confidence_score": 8
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "harmless, clean",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "undetected, unrated",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="ipRequestAggregation flow" doc:id="e3c708f4-323d-4bdb-bef7-f73f962cdf77" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ipRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7def3a34-1e48-4dbb-8051-9c5da32ffd78" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.IPaggregationResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set site and IP result" doc:id="ced7dfba-8020-4868-8c48-398e64bf0063" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "site": "google.com",
+  "siteLookup": {
+    "isClean": true,
+    "threatType": "None",
+    "viruses": "None",
+    "siteResponseCode": 200
+  },
+  "IP": "142.250.188.46",
+  "owner": "GOOGLE",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "US",
+  "datacenter": "/v1/datacenter/GOOGLE",
+  "abuseIPDB": {
+    "total_reports": 0,
+    "confidence_score": 0
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "undetected, unrated",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "harmless, clean",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Set siteEmailMessage" doc:id="f5a08091-def7-4eae-bf45-800e134ccc44" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="siteEmailMessage" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	response:
+		"Site report:
+		Site: google.com
+		Is site clean: true
+		Site threat type: None
+		Viruses on site: None
+		Site response code: 200
+		IP: 142.251.111.102
+		Site owner: GOOGLE
+		Usage type: Data Center/Web Hosting/Transit
+		Found hostnames: None
+		Country: US
+		Datacenter: /v1/datacenter/GOOGLE
+		AbuseIPDB result:
+		Total times reported: 0
+		Confidence score: 0
+		Threatjammer result:
+		Risk level: LOW
+		Reason phrase: No risk found.
+		Cloudmersive result:
+		Is bot: false
+		Is threat: false
+		Threat type if any:
+		Virustotal result ratings:
+		Harmless: 83
+		Malicious: 0
+		Suspicious: 0
+		Undetected: 12
+		Timeout: 0"
+}
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="email message " doc:id="e86012a3-fbdf-45e0-b2c3-56396370416e" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send report message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="19ef9797-e593-4e69-86c2-f65b38fe064a" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="Site report" attributeName="subject" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.siteEmailMessage]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="c40bf6bd-d324-41e0-8fa4-3e16e62d61d8" variableName="clientAddress"/>
+			<set-variable value='IPtoScan=="142.251.163.113"' doc:name="IPtoScan" doc:id="4b69af0d-d34e-4dab-a988-e5717eda33df" variableName="IPtoScan"/>
+			<set-payload value='#["/site google.com"]' doc:name="Set command Payload" doc:id="488f7383-e746-4187-981e-ccb017b75fd3" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="fccfa333-49b6-466a-850f-a3e0fad68c0e" name="processAndValidateCommand" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="aedd7dcd-e9fa-4cc9-b0a0-fbbf99e0f1b1" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1ec38f83-9e10-4c53-b5da-862ef8cf105d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processNewMailTest-valid" doc:id="8d7f21e0-b5af-44ad-b0a7-fc318651cf0c" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set processAndValidateCommand response" doc:id="98c067d9-ec76-49de-be06-f5a6ca876aaa">
+				<ee:message>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="processResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	response:
+		"Site report:
+		Site: google.com
+		Is site clean: true
+		Site threat type: None
+		Viruses on site: None
+		Site response code: 200
+		IP: 142.251.111.102
+		Site owner: GOOGLE
+		Usage type: Data Center/Web Hosting/Transit
+		Found hostnames: None
+		Country: US
+		Datacenter: /v1/datacenter/GOOGLE
+		AbuseIPDB result:
+		Total times reported: 0
+		Confidence score: 0
+		Threatjammer result:
+		Risk level: LOW
+		Reason phrase: No risk found.
+		Cloudmersive result:
+		Is bot: false
+		Is threat: false
+		Threat type if any:
+		Virustotal result ratings:
+		Harmless: 83
+		Malicious: 0
+		Suspicious: 0
+		Undetected: 12
+		Timeout: 0"
+}
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock processAndValidateCommand" doc:id="7de1a996-f4dd-4dc0-9cb7-0d219eeb304e" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="processAndValidateCommand Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="bbf9816a-5ced-4d18-9fed-0166faa20a58" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="processAndValidateCommand" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.processResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="adef6363-185a-48dd-b397-209d09a87be6" variableName="clientAddress"/>
+			<set-payload value='#["/site google.com"]' doc:name="Set command Payload" doc:id="cacb724b-7f35-4c95-958c-e3496c35aec6" />
+			<flow-ref doc:name="processNewMail" doc:id="45b44736-de57-4c62-98f7-f3b1c0237e3b" name="processNewMail"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="917c4eb6-a5a6-4bd1-94ae-b368a56707ee" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="76840cce-555f-4937-9699-e0b9ef4a3821" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c27ce979-9267-45bb-9d7a-e5ef68880d4f" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-invalid-noCommand" doc:id="d8afec7c-64c2-442b-b316-fed51fc0ae3c" description="Test" expectedErrorType="APP:NO_COMMAND">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock email message " doc:id="fab926a0-7c3f-4fb3-a28f-affe0d6da8b6" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e99e0497-c7ea-4333-8e30-863973bc37da" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="No command specified" attributeName="subject" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.help]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="53d9a308-202b-4db2-9bc9-e247db9af05c" variableName="clientAddress" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="5ccd8f37-4504-44bc-abf9-e828d84fc7c6" name="processAndValidateCommand" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-invalid-raiseError" doc:id="86fcf025-973a-40fa-8a6d-aa9066882cd0" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b6f293b3-19de-48ae-88a0-517aa36312ee" processor="raise-error">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Unknown command" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2e338079-a566-4170-9e83-73e6de94333c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="APP:UNKNOWN_COMMAND" attributeName="type" />
+					<munit-tools:with-attribute whereValue="Unknown command specified!" attributeName="description" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="d564fe5a-e871-4970-b7ee-d0d4fac0c72f" variableName="clientAddress" />
+			<set-payload value='#["/"]' doc:name="Set unknown command Payload" doc:id="22da3a38-4390-4df9-a057-4474b6ff7962" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="5bf6f7ac-74e0-4dd2-88ae-95926cf897c7" name="processAndValidateCommand" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="6766d06e-b7d3-45e2-8b51-e5d43d79a1c4" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2574b329-be55-40bc-8268-a1e0d1f7701d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processAndValidateCommandTest-invalid-dns_failed" doc:id="dca5ea31-5f79-40b2-a253-b05d6db6f67c" description="Test" expectedErrorType="APP:DNS_FAILED">
+		<munit:behavior >
+			<ee:transform doc:name="Set mailSiteGetValidate response" doc:id="23d652c1-e60d-4364-967b-3d00acedbed8" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="mailSite" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	command_params: [
+		" "
+	]
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="mailSitegGetValidate flow" doc:id="5d4a27a1-715e-47ae-873d-8a5367a8d76b" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mailSiteGetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8a7bc6b5-e85b-46ac-a1d2-010f40889762" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="mailSiteGetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.mailSite]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="getCredentials" doc:id="4a82996f-18ed-426a-9750-59b2ae542a24" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="09c8becb-f608-409f-b444-adb936864862" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock email message " doc:id="bb2aca43-58c9-4e21-b84f-046cbeb02506" processor="email:send">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="Send error message" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="c215e922-360d-4ced-a576-c44a476c908c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mule.ip.info@gmail.com" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="DNS lookup failed" attributeName="subject" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[vars.help]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='clientAddress=="vkkiev@gmail.com"' doc:name="clientAddress" doc:id="9b1ff9d9-2815-4f34-a976-bc235edc1a5b" variableName="clientAddress" />
+			<set-variable value='siteToScan==" "' doc:name="siteToScan" doc:id="fcc4cf22-4b50-4466-852a-a83a658cf689" variableName="siteToScan"/>
+			<set-payload value='#["/site "]' doc:name="Set command Payload" doc:id="541ac9af-718c-4cb1-9a76-879e97b935ee" />
+			<flow-ref doc:name="processAndValidateCommand" doc:id="498a627b-f01c-42cc-a008-3198f87c1798" name="processAndValidateCommand" />
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

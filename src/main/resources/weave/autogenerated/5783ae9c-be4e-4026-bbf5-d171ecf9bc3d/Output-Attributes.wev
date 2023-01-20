@@ -1,0 +1,15 @@
+%dw 2.0
+
+type auto_5783ae9c_be4e_4026_bbf5_d171ecf9bc3d_Output_Attributes = {|
+  replyToAddresses*: Array<String>, 
+  subject*: String, 
+  bccAddresses*: Array<String>, 
+  ccAddresses*: Array<String>, 
+  fromAddresses*: Array<String>, 
+  receivedDate*?: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  toAddresses*: Array<String>, 
+  sentDate*?: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  number*: Number, 
+  headers*: { _?: String }
+|}
+

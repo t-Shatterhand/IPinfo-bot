@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:telegram="http://www.mulesoft.org/schema/mule/telegram" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/telegram http://www.mulesoft.org/schema/mule/telegram/current/mule-telegram.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<telegram:config name="Telegram_Connector_Config" doc:name="Telegram Connector Config" doc:id="e443f9e8-5c9d-435b-9128-980134609875" >
+		<telegram:connection-provider-connection secureToken="${secure::telegram.secure_token}" baseUri="${telegram.base_uri}"/>
+	</telegram:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="dd6cb88d-8d1e-4136-a235-65407e8c3709" >
+		<http:listener-connection host="0.0.0.0" port="${listener.port}" />
+	</http:listener-config>
+	<http:request-config name="Cloudmersive_Request" doc:name="HTTP Request configuration" doc:id="31506fbc-eef9-419d-8664-bd0d227ea793" >
+		<http:request-connection host="${cloudmersive.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="ef68299e-8369-4ada-871a-3c38087e16d7" >
+		<email:smtp-connection host="${smtp.host}" port="${smtp.port}" user="${secure::smtp.user}" password="${secure::smtp.password}" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<http:request-config name="AbuseIPDB_Request" doc:name="HTTP Request configuration" doc:id="82d8240f-c3d1-4aff-b581-631f0f314b1f" >
+		<http:request-connection host="${abuseIPDB.host}" protocol="HTTPS"/>
+	</http:request-config>
+
+	<http:request-config name="Virustotal_Request" doc:name="HTTP Request configuration" doc:id="88fc9460-8f43-4242-a01d-de4a0e9e233f" >
+		<http:request-connection host="${virustotal.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<http:request-config name="Threatjammer_Request" doc:name="HTTP Request configuration" doc:id="a5aee267-4fc5-44de-af2d-bbfca904da21" >
+		<http:request-connection host="${threatjammer.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="cc5ef31c-bf91-460a-9b95-2d004b0f9bf4" file="config.yaml" />
+	<http:request-config name="DNSLookUp_Request" doc:name="HTTP Request configuration" doc:id="8efd97dc-7991-42ef-bfdc-c0ec273135e7" >
+		<http:request-connection host="${dnsLookUp.host}" protocol="HTTPS"/>
+	</http:request-config>
+	<email:pop3-config name="Email_POP3" doc:name="Email POP3" doc:id="411cc0ea-74e2-441d-9d04-b504054a8ed4" >
+		<email:pop3s-connection host="${pop.host}" port="${pop.port}" user="${secure::pop.user}" password="${secure::pop.password}" >
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</email:pop3s-connection>
+	</email:pop3-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="156e0dba-3599-472b-9232-59fa140da5a3" file="config.yaml" key="tutorialspedia" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+
+</mule>

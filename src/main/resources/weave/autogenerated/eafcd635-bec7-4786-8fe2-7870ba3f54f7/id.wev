@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_eafcd635_bec7_4786_8fe2_7870ba3f54f7_Output_Variables_chat_id = Number {"typeId": "int"}
+

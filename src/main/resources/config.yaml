@@ -1,0 +1,38 @@
+telegram:
+  secure_token: "![cjE7mPPWDdZzQmQqrtDUXSaD/q9gLDyTSIGXlehRYxzeoFmfVldDPkSljtMnipty]"
+  base_uri: "https://api.telegram.org"
+
+cloudmersive:
+  api_key: "![QWvgkA1yEYK161a8ZsoHHonyEH9JBE84vLNpfNil2De1fcOE2dEvog==]"
+  host: "api.cloudmersive.com"
+  
+abuseIPDB:
+  api_key: "![ZVff05XR+Hj/yJJeBMYtCl1Pp0TmKTTAJtIQJDBu/nnmf1kQeGUc50dMYBvht7/MjOGRqvSYGlh8q+LMJYnfhd6jibDKYCkhx0dYzS9CLJ7uwXmSi0ch4Q==]"
+  host: "api.abuseipdb.com"
+  
+threatjammer:
+  api_key: "![ppf+bYqoiAxUKrYxpAJW2Ed3ToE0z6PxXKFaN7W9K3f2df0XWGaBgmDf92ug6C8k]"
+  host: "dublin.api.threatjammer.com"
+  
+virustotal:
+  api_key: "![0mavDEWqHlJhQmQzo1Kog9vMrMVnV5NGrFUpH/2zbbFyxuXp70/kjPs+Y5y3ycPDxY50B6yO1Hi0NdB3MfGpldhWOsPYMGVN]"
+  host: "www.virustotal.com"
+
+smtp:
+  host: "smtp.gmail.com"
+  port: "587"
+  user: "![B4UqwM317hxJNNV5Lj3l8EdlKYW0L9Bw]"
+  password: "![QA5+plZmSzdYer/vkx1caEwLjbDbm2+7]"
+  
+pop:
+  host: "pop.gmail.com"
+  port: "995"
+  user: "![B4UqwM317hxJNNV5Lj3l8EdlKYW0L9Bw]"
+  password: "![QA5+plZmSzdYer/vkx1caEwLjbDbm2+7]"
+
+dnsLookUp:
+  api_key: "![Y8uIqCQLrjse7KBtEry2IOIUeX3pzBb5haVBJLoVBMhZD+4aP1CejQ==]"
+  host: "api.geekflare.com"
+  
+listener:
+  port: "8081"

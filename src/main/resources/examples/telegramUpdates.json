@@ -1,0 +1,11 @@
+{"ok":true,"result":[{"update_id":383788167,
+"message":
+{"message_id":1,"from":{"id":143699895,"is_bot":false,"first_name":"Shatterhand","username":"t_Shatterhand","language_code":"ru"},"chat":{"id":143699895,"first_name":"Shatterhand","username":"t_Shatterhand","type":"private"},"date":1661293070,"text":"/start","entities":[{"offset":0,"length":6,"type":"bot_command"}]}},{"update_id":383788168,
+"message":
+{"message_id":2,"from":{"id":143699895,"is_bot":false,"first_name":"Shatterhand","username":"t_Shatterhand","language_code":"ru"},"chat":{"id":143699895,"first_name":"Shatterhand","username":"t_Shatterhand","type":"private"},"date":1661293181,"text":"Lol"}},{"update_id":383788169,
+"message":
+{"message_id":3,"from":{"id":143699895,"is_bot":false,"first_name":"Shatterhand","username":"t_Shatterhand","language_code":"ru"},"chat":{"id":143699895,"first_name":"Shatterhand","username":"t_Shatterhand","type":"private"},"date":1661293184,"text":"Kek"}},{"update_id":383788170,
+"message":
+{"message_id":4,"from":{"id":143699895,"is_bot":false,"first_name":"Shatterhand","username":"t_Shatterhand","language_code":"ru"},"chat":{"id":143699895,"first_name":"Shatterhand","username":"t_Shatterhand","type":"private"},"date":1661293188,"text":"Cheburek"}},{"update_id":383788171,
+"message":
+{"message_id":5,"from":{"id":143699895,"is_bot":false,"first_name":"Shatterhand","username":"t_Shatterhand","language_code":"ru"},"chat":{"id":143699895,"first_name":"Shatterhand","username":"t_Shatterhand","type":"private"},"date":1661331648,"text":"/history 2020-03-21 2020-05-28","entities":[{"offset":0,"length":8,"type":"bot_command"}]}}]}

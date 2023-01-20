@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_ede6fa85_4ec9_41fe_8045_aaf954941e4a_Output_Payload = {
+  disable_notification?: Boolean, 
+  parse_mode?: "MarkdownV2" | "HTML" | "Markdown", 
+  text: String, 
+  reply_to_message_id?: Number, 
+  chat_id: Number | String, 
+  _?: Any
+}
+

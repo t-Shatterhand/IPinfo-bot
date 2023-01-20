@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="processNewMail" doc:id="660d556c-22c5-427c-a22d-d07224cc0b5c" initialState="started">
+		<email:listener-pop3 doc:name="Received new mail on bot address" doc:id="94e01812-8032-4066-ad13-c00c7292a2b2" config-ref="Email_POP3" deleteAfterRetrieve="true">
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</email:listener-pop3>
+		<logger level="INFO" doc:name="Log at start" doc:id="a69455c1-6566-4e93-ad43-c4a25b18fffa" message='#["Received a new mail at" ++ now()]' />
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;(message.attributes.fromAddresses[0] splitBy(" "))[-1][1 to -2]]' doc:name="clientAddress" doc:id="628bea6b-aa59-4c56-9868-f2b95561d9d1" variableName="clientAddress" />
+		<set-payload value="#[message.attributes.subject]" doc:name="Set subject as payload" doc:id="5771d082-a655-49ec-be3a-677ef4bcf9b7" />
+		<flow-ref doc:name="processAndValidateCommand Flow" doc:id="bbf9816a-5ced-4d18-9fed-0166faa20a58" name="processAndValidateCommand"/>
+		<logger level="INFO" doc:name="Log at exit" doc:id="76840cce-555f-4937-9699-e0b9ef4a3821" message='#["Finished processing mail at" ++ now()]'/>
+	</flow>
+	<flow name="processAndValidateCommand" doc:id="7f05f07c-6cfa-4f85-9ba5-891dbd1c2cac" >
+		<logger level="INFO" doc:name="Log at start" doc:id="4da65e03-43a1-45c0-9f99-a615fb028a45" message='#["Started processing mail command"]'/>
+		<validation:is-not-blank-string doc:name="Is payload not blank" doc:id="945caeb9-a7df-4dc0-9ee1-21a4503d9846" message='#["No command set!"]'>
+			<error-mapping targetType="APP:NO_COMMAND" />
+		</validation:is-not-blank-string>
+		<ee:transform doc:name="Split into command and parameters" doc:id="5d4aaa04-1214-40f2-9536-9c86a311fe51" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+import drop from dw::core::Arrays
+var text_split = payload splitBy " "
+---
+{
+    command: text_split[0],
+    command_params: drop(text_split, 1)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="2caf887b-181d-4e27-9ff4-971a31bb17c1" >
+			<when expression='#[payload.command == "/IP"]'>
+				<flow-ref doc:name="mailIPgetValidate" doc:id="0c99009d-1ac9-45dd-b5d1-863e0011f107" name="mailIPgetValidate"/>
+				<flow-ref doc:name="getCredentials Flow" doc:id="3cb49161-8800-49a5-a700-0f99462ac39b" name="getCredentials"/>
+				<flow-ref doc:name="ipRequestAggregation Flow" doc:id="63be51be-df61-4787-9147-945d839bbf7f" name="ipRequestAggregation"/>
+				<email:send doc:name="Send report message" doc:id="926c12e3-4a76-4de1-9b9a-25685bce2859" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="IP report">
+					<email:to-addresses>
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain">
+						<email:content><![CDATA[#[%dw 2.0
+output text/plain
+var datacenter = (if (payload.datacenter == "") "unknown" else payload.datacenter)
+var hostnames = (if (payload.found_hostnames == "[]") "None" else (payload.found_hostnames joinBy (", ")))
+---
+"IP: " ++ payload.IP ++ "\nSite owner: " ++ (payload.owner default "unknown") ++ "\nUsage type: " ++
+	(payload.usage_type default "unknown") ++ "\nFound hostnames: " ++ hostnames ++ "\nCountry: " ++
+	(payload.country default "unknown") ++ "\nDatacenter: " ++  datacenter ++ "\nAbuseIPDB result:\nTotal times reported: " ++
+	payload.abuseIPDB.total_reports ++ "\nConfidence score: " ++ payload.abuseIPDB.confidence_score ++
+	"\nThreatjammer result:\nRisk level: " ++ payload.threatjammer.risk_level ++ "\nReason phrase: " ++
+	payload.threatjammer.reason_phrase ++ "\nCloudmersive result:\nIs bot: " ++ payload.cloudmersive.is_bot ++
+	"\nIs threat: " ++ payload.cloudmersive.is_threat ++ "\nThreat type if any:" ++ payload.cloudmersive.threat_type ++
+	"\nVirustotal result ratings:\nHarmless: " ++ payload.virustotal.ratings.harmless ++ "\nMalicious: " ++ 
+	payload.virustotal.ratings.malicious ++ "\nSuspicious: " ++ payload.virustotal.ratings.suspicious ++ "\nUndetected: " ++
+	payload.virustotal.ratings.undetected ++ "\nTimeout: " ++ payload.virustotal.ratings.timeout]]]></email:content>
+					</email:body>
+				</email:send>
+				<logger level="INFO" doc:name="Log at exit" doc:id="fbf8deee-28cb-4333-8e67-c87754b8daaf" message='#["Finished Processing mail /IP command"]'/>
+			</when>
+			<when expression='#[payload.command == "/help"]'>
+				<email:send doc:name="Send help message" doc:id="b3ae7e59-7b98-4df3-8162-9f50081838db" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="/help message" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["/help:\nPossible commands are:\n/IP <ip> - perform security lookup on a particular IP address and return report." ++
+"\n/site <website> - perform security lookup on particular website and its IP address and return report." ++
+"\nExample commands: /IP 212.48.56.123; /site google.com"]]]></email:content>
+					</email:body>
+				</email:send>
+				<logger level="INFO" doc:name="Log at exit" doc:id="6130fec8-d126-46fc-a51e-d88e32e02a0c" message='#["Finished processing mail /help command"]'/>
+			</when>
+			<when expression='#[payload.command == "/site"]'>
+				<flow-ref doc:name="mailSiteGetValidate Flow" doc:id="8a7bc6b5-e85b-46ac-a1d2-010f40889762" name="mailSiteGetValidate"/>
+				<flow-ref doc:name="getCredentials" doc:id="09c8becb-f608-409f-b444-adb936864862" name="getCredentials"/>
+					<flow-ref doc:name="dnsLookup Flow" doc:id="17c98cf4-d6e8-4e50-8436-bc0a5f02b7be" name="dnsLookup"/>
+					<flow-ref doc:name="siteRequestAggregation Flow" doc:id="191e3840-0588-423a-b893-7e7b4f3a08e3" name="siteRequestAggregation"/>
+					<flow-ref doc:name="ipRequestAggregation Flow" doc:id="7def3a34-1e48-4dbb-8051-9c5da32ffd78" name="ipRequestAggregation"/>
+					<ee:transform doc:name="Add site result to IP result" doc:id="08fbaea7-1129-4889-b0e5-9bd2c4d7959e" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"site": vars.siteToScan,
+	"siteLookup": {
+		"isClean": vars.siteLookupResult.CleanResult default "unknown",
+		"threatType": vars.siteLookupResult.WebsiteThreatType default "unknown",
+		"viruses": vars.siteLookupResult.FoundViruses default "None",
+		"siteResponseCode": vars.siteLookupResult.WebsiteHttpResponseCode default "500"
+	}
+} ++ payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<email:send doc:name="Send report message" doc:id="19ef9797-e593-4e69-86c2-f65b38fe064a" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="Site report">
+					<email:to-addresses>
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain">
+						<email:content><![CDATA[#[%dw 2.0
+output text/plain
+var datacenter = (if (payload.datacenter == "") "unknown" else payload.datacenter)
+var hostnames = (if (payload.found_hostnames == "[]") "None" else (payload.found_hostnames joinBy (", ")))
+---
+"Site report:\nSite: " ++ (vars.siteToScan default "") ++ "\nIs site clean: " ++ payload.siteLookup.isClean ++ "\nSite threat type: "
+	++ (payload.siteLookup.threatType default "unknown") ++ "\nViruses on site: " ++ (payload.siteLookup.viruses default "unknown") ++
+	"\nSite response code: " ++ (payload.siteLookup.siteResponseCode default "unknown") ++ "\nIP: "
+	++ payload.IP ++ "\nSite owner: " ++ (payload.owner default "unknown") ++ "\nUsage type: " ++
+	(payload.usage_type default "unknown") ++ "\nFound hostnames: " ++ hostnames ++ "\nCountry: " ++
+	(payload.country default "unknown") ++ "\nDatacenter: " ++  datacenter ++ "\nAbuseIPDB result:\nTotal times reported: " ++
+	payload.abuseIPDB.total_reports ++ "\nConfidence score: " ++ payload.abuseIPDB.confidence_score ++
+	"\nThreatjammer result:\nRisk level: " ++ payload.threatjammer.risk_level ++ "\nReason phrase: " ++
+	payload.threatjammer.reason_phrase ++ "\nCloudmersive result:\nIs bot: " ++ payload.cloudmersive.is_bot ++
+	"\nIs threat: " ++ payload.cloudmersive.is_threat ++ "\nThreat type if any:" ++ payload.cloudmersive.threat_type ++
+	"\nVirustotal result ratings:\nHarmless: " ++ payload.virustotal.ratings.harmless ++ "\nMalicious: " ++ 
+	payload.virustotal.ratings.malicious ++ "\nSuspicious: " ++ payload.virustotal.ratings.suspicious ++ "\nUndetected: " ++
+	payload.virustotal.ratings.undetected ++ "\nTimeout: " ++ payload.virustotal.ratings.timeout]]]></email:content>
+					</email:body>
+				</email:send>
+				<logger level="INFO" doc:name="Log at exit" doc:id="1ec38f83-9e10-4c53-b5da-862ef8cf105d" message='#["Finished processing mail /site command"]'/>
+				
+</when>
+			<otherwise >
+				<raise-error doc:name="Unknown command" doc:id="2e338079-a566-4170-9e83-73e6de94333c" type="APP:UNKNOWN_COMMAND" description='Unknown command specified!'/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log at exit" doc:id="2574b329-be55-40bc-8268-a1e0d1f7701d" message='#["Finished processing mail command"]' />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4b50450e-323f-42c5-8ba7-10a0664507a8" type="APP:NO_COMMAND">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="29651a13-9198-4ead-9aa7-5418009783a5" message='#["Failed processing request due to no command specified"]'/>
+				<email:send doc:name="Send error message" doc:id="e99e0497-c7ea-4333-8e30-863973bc37da" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="No command specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["You have specified no command! Type your command as the first word of the message topic." ++
+"\nExample: /IP 211.56.32.113.\nTo get the list of commands, try command /help"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ecf0e88e-a7d9-44db-826f-e6331392abd7" type="APP:UNKNOWN_COMMAND">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="83ce0071-a7c2-4f13-a17f-6a32678667e3" message='#["Failed processing request due to invalid command specified"]' />
+				<email:send doc:name="Send error message" doc:id="ef123b01-b317-4d12-82f6-d33c736e6da2" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="Invalid command specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["Unknown command! Try command /help to get the list of commands."]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d8ebb967-6164-4c0c-8c7a-a7491cabcad4" type="APP:DNS_FAILED">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="fdb1282c-4f18-42ce-b34d-98d76ae8b8c3" message='#["Mail reference to DNS lookup flow failed due to DNS error code"]' />
+				<email:send doc:name="Send error message" doc:id="c215e922-360d-4ced-a576-c44a476c908c" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="DNS lookup failed" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["DNS lookup on current site failed. The site may be inexistent."]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="mailSiteGetValidate" doc:id="e18458cc-c81c-4567-9b92-e59acf6279cc" >
+		<set-variable value="#[payload.command_params[0]]" doc:name="siteToScan" doc:id="b3112ee1-e27d-4793-97bb-5e5a3330820f" variableName="siteToScan" />
+		<validation:is-not-null doc:name="Is siteToScan present" doc:id="7a93247c-3c26-4df0-8fa6-cec4f0dca6df" value="#[vars.siteToScan]" message='#["No site to scan specified"]'>
+			<error-mapping sourceType="VALIDATION:NULL" targetType="APP:SITE_NULL" />
+		</validation:is-not-null>
+		<validation:is-not-blank-string doc:name="Is siteToScan not empty" doc:id="3b18e086-ca51-4131-9577-526aa0acceee" value="#[vars.siteToScan]" message='#["Empty site field specified"]'>
+			<error-mapping targetType="APP:SITE_EMPTY" sourceType="VALIDATION:BLANK_STRING"/>
+		</validation:is-not-blank-string>
+		<logger level="INFO" doc:name="Log after validated" doc:id="4cd2d7e6-aa20-4d3c-ab28-9d33f28a58e7" message='#["site=" ++ (vars.siteToScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3dcf4b47-6454-4878-b5b1-c89ead68d1c7" type="APP:SITE_NULL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="95c92e23-ffc6-4128-b699-1902c963c637" message='#["Failed processing mail request due to no site specified"]' />
+				<email:send doc:name="Send error message" doc:id="2c097913-7d90-4b64-a040-4c07da371eb6" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="No site specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["No site to scan specified! Try typing it right after the /site command." ++
+"\nExample: /site google.com"]]]></email:content>
+					</email:body>
+				</email:send>
+			
+
+</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1d7459fb-450b-4428-a442-483a8b6ed2e2" type="APP:SITE_EMPTY" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="07f5f688-73dd-4488-a7d4-c6019efea33e" message='#["Failed processing mail request due to empty site specified"]' />
+				<email:send doc:name="Send error message" doc:id="3a2508b5-60b5-4406-8094-cbcf7a9971db" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="Empty site specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["Empty site to scan specified! Try typing it right after the /site command." ++
+"\nExample: /site google.com"]]]></email:content>
+					</email:body>
+				</email:send>
+			
+
+</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="mailIPgetValidate" doc:id="5783ae9c-be4e-4026-bbf5-d171ecf9bc3d">
+		<set-variable value="#[payload.command_params[0]]" doc:name="IPtoScan" doc:id="35fd08c0-5f82-4bad-88e1-0a01d682b8d4" variableName="IPtoScan"/>
+		<validation:is-not-null doc:name="IP not null" doc:id="096c3761-9185-478c-a1e6-61e7f9848cd4" value="#[vars.IPtoScan]" message='#["Error - IP field is null!"]'>
+			<error-mapping targetType="APP:IP_NULL" />
+		</validation:is-not-null>
+		<validation:is-ip doc:name="IP valid" doc:id="20f692d2-3ac3-457d-b6a3-6be96eb1f872" ip="#[vars.IPtoScan]" message='#["Error - IP not valid!"]'>
+			<error-mapping targetType="APP:IP_INVALID" />
+		</validation:is-ip>
+		<validation:is-not-denied-ip doc:name="IP not local network" doc:id="6347d191-f20e-4cb1-a3f4-f3615eb60b04" ipAddress="#[vars.IPtoScan]" message='#["Error - IP in local network!"]'>
+			<error-mapping targetType="APP:IP_LOCAL" />
+			<validation:deny-list>
+				<validation:ips>
+					<validation:ip value="127.0.0.1" />
+					<validation:ip value="192.168.0.1" />
+					<validation:ip value="192.168.31.1" />
+					<validation:ip value="127.0.1.1" />
+				</validation:ips>
+			</validation:deny-list>
+		</validation:is-not-denied-ip>
+		<logger level="INFO" doc:name="Log after validated" doc:id="ed284ddf-b9ac-4d9d-b7e2-46f613bf84fa" message='#["IP=" ++ (vars.IPtoScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b1d77db8-ed7a-4a9a-bb68-adaa5b70a1b3" type="APP:IP_NULL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="b7222d38-9be7-46c0-bf87-cef9135622a0" message='#["Failed processing request due to no IP specified"]'/>
+				<email:send doc:name="Send error message" doc:id="1d57ec3f-4947-49cc-9c3c-919015ee3f91" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="No IP specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["No IP to scan specified! Try typing it right after the /IP command." ++
+"\nExample: /IP 211.46.53.123"]]]></email:content>
+					</email:body>
+				</email:send>
+			
+</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e1bc2a07-4c57-42ee-bf88-49c524dcd56f" type="APP:IP_INVALID">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="4940c946-55da-4d85-9f8e-4675447fe659" message='#["Failed processing request due to invalid IP specified"]' />
+				<email:send doc:name="Send error message" doc:id="1d0758d8-ebda-4901-9703-cf30fc9867ac" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="Invalid IP specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["Invalid IP specified! Try using the following syntax:" ++
+"\nExample: /IP 211.46.53.123"]]]></email:content>
+					</email:body>
+				</email:send>
+			
+</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3c60fcb8-fa1a-4eaa-a838-63c3d9c334ac" type="APP:IP_LOCAL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="c14c484f-af89-42c6-bc9b-2ca628a633d0" message='#["Failed processing request due to local network IP specified"]' />
+				<email:send doc:name="Send error message" doc:id="19f15da6-cc4d-4a72-acc7-6bc8050e9cde" config-ref="Email_SMTP" fromAddress="mule.ip.info@gmail.com" subject="Local IP specified" >
+					<email:to-addresses >
+						<email:to-address value="#[vars.clientAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["Local network IP specified! Try specifying the global IP address."]]]></email:content>
+					</email:body>
+				</email:send>
+			
+</on-error-propagate>
+		</error-handler>
+	
+</flow>
+
+</mule>

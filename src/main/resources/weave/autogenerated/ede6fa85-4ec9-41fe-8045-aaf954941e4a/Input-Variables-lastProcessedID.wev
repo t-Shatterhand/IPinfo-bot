@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_ede6fa85_4ec9_41fe_8045_aaf954941e4a_Input_Variables_lastProcessedID = {|  |} {"typeAlias": "Serializable",
+"typeId": "java.io.Serializable"}
+

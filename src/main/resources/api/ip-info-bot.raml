@@ -1,0 +1,52 @@
+#%RAML 1.0
+title: IP info bot
+
+/ipLookup:
+  get:
+    queryParameters:
+      IP:
+        type: string
+        description: "An IP address to perform lookup on"
+        required: false
+        example: "91.202.128.77"
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include Examples/ipLookupExample.json
+            description: "Example of a response to a valid request"
+      400:
+        body:
+          application/json:
+            example: !include Examples/invalidLookupExample.json
+            description: "Example of a respose to an invalid request"
+      500:
+        body:
+          application/json:
+            example: !include Examples/failedLookupExample.json
+            description: "Example of a response if the server failed"
+            
+/siteLookup:
+  get:
+    queryParameters:
+      site:
+        type: string
+        description: "A website address to perform lookup on"
+        required: false
+        example: "google.com"
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include Examples/siteLookupExample.json
+            description: "Example of a response to a valid request"
+      400:
+        body:
+          application/json:
+            example: !include Examples/invalidLookupExample.json
+            description: "Example of a respose to an invalid request"
+      500:
+        body:
+          application/json:
+            example: !include Examples/failedLookupExample.json
+            description: "Example of a response if the server failed"

@@ -1,0 +1,1401 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="requests-test-suite.xml" />
+	<munit:test name="cloudmersiveScanWebsiteTest" doc:id="0fdd4516-db7f-43e0-b1de-3fc164a9686f" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="cloudmersiveScanWebsite Request" doc:id="aca56bbb-8750-44bb-bc3c-5d96e358bc51" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="POST /scan/website" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e840710f-81ad-4a56-bb0e-c5e34533e461" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Cloudmersive_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/virus/scan/website/" attributeName="path" />
+					<munit-tools:with-attribute whereValue="30000" attributeName="responseTimeout" />
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="POST /scan/website" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e840710f-81ad-4a56-bb0e-c5e34533e461" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Cloudmersive_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/virus/scan/website/" attributeName="path" />
+					<munit-tools:with-attribute whereValue="30000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;    "CleanResult": "true",&#10;    "WebsiteThreatType": "None",&#10;    "FoundViruses": "null",&#10;    "WebsiteHttpResponseCode": "200"&#10;}]' doc:name="Set Response Payload" doc:id="5c33343d-36dd-43fd-be82-7305a9ec289b" />
+			<flow-ref doc:name="cloudmersiveScanWebsite" doc:id="a8c90801-770d-43ff-8fe2-b3c9a3803833" name="cloudmersiveScanWebsite"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="b3ec15ef-96e4-4b4f-8e76-a2863b978f87" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="21d5bbba-9444-476f-bcba-d50cb9c5dc92" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b21aeb25-a4bc-4ea2-8a69-3de15b9b4833" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="cloudmersiveIsThreatLookupTest" doc:id="b5a67b76-962a-4b50-9d29-1691a97f56b9" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="cloudmersiveIsThreatLookup Request" doc:id="343e4b56-119a-4665-ad3a-58fd10f3d448" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="POST /IP/isThreat" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="41afe101-db6f-4532-b958-a9e1e93e3288" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Cloudmersive_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/security/threat-detection/network/ip/is-threat" attributeName="path" />
+					<munit-tools:with-attribute whereValue="30000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;    "IsThreat": "false",&#10;    "ThreatType": ""&#10;}]' doc:name="Set Response Payload" doc:id="114762a7-b7d4-4cbc-82e7-50b30888bb8d" />
+			<flow-ref doc:name="cloudmersiveIsThreatLookup" doc:id="e5ab1305-3a74-4adf-87a4-59f0914ba41c" name="cloudmersiveIsThreatLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="5c60f55b-efc5-4e19-85ef-2b9d707eb70a" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0974ec31-64b6-4a7f-a5bb-8d4901cf6f28" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c27742d9-359f-4a7c-9245-3d5418b0d120" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="cloudmersiveIsBotLookupTest" doc:id="5beae399-fbb1-44c9-95b0-c884a79e4364" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="cloudmersiveIsBotLookup Request" doc:id="f389bc04-00e0-432c-b98a-d473796d60a4" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="POST /IP/isBot" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1607c0a9-4b6a-4462-9050-39ab07d8e076" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Cloudmersive_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/security/threat-detection/network/ip/is-bot" attributeName="path" />
+					<munit-tools:with-attribute whereValue="30000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;  "IsBot": "false"&#10;}]' doc:name="Set Response Payload" doc:id="64a5aca9-e5c0-47e1-8553-cecb6281e807" />
+			<flow-ref doc:name="cloudmersiveIsBotLookup" doc:id="fe2efc75-0df2-48b6-adba-e83f53c5b5f9" name="cloudmersiveIsBotLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="5e95a903-16b9-4440-afa4-d16e47355ede" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ce5efabe-694e-48db-bb2b-3e852137acbf" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="96e2e408-6599-4079-b1e6-daf4e31ff9e0" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="abuseIPDBlookupTest" doc:id="6bae68a6-b7eb-4323-8dad-1ffa5c5a143b" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="abuseIPDBlookup Request" doc:id="fafe9797-f979-4252-860a-8758bccbf655" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="GET /api/v2/check" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="6c1e2047-693e-4258-9a2e-cfcaa917db8d" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="/api/v2/check" attributeName="path" />
+					<munit-tools:with-attribute whereValue="AbuseIPDB_Request" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;    "data": {&#10;      "ipAddress": "118.25.6.39",&#10;      "isPublic": true,&#10;      "ipVersion": 4,&#10;      "isWhitelisted": false,&#10;      "abuseConfidenceScore": 100,&#10;      "countryCode": "CN",&#10;      "countryName": "China",&#10;      "usageType": "Data Center/Web Hosting/Transit",&#10;      "isp": "Tencent Cloud Computing (Beijing) Co. Ltd",&#10;      "domain": "tencent.com",&#10;      "hostnames": [],&#10;      "totalReports": 1,&#10;      "numDistinctUsers": 1,&#10;      "lastReportedAt": "2018-12-20T20:55:14+00:00",&#10;      "reports": [&#10;        {&#10;          "reportedAt": "2018-12-20T20:55:14+00:00",&#10;          "comment": "Dec 20 20:55:14 srv206 sshd[13937]: Invalid user oracle from 118.25.6.39",&#10;          "categories": [&#10;            18,&#10;            22&#10;          ],&#10;          "reporterId": 1,&#10;          "reporterCountryCode": "US",&#10;          "reporterCountryName": "United States"&#10;        }&#10;      ]&#10;    }&#10;  }]' doc:name="Set Response Payload" doc:id="9defc757-a688-4b35-8556-cc99f3853574" />
+			<flow-ref doc:name="abuseIPDBlookup" doc:id="8ecdb5c5-e571-4433-bdde-6f2ade99efa6" name="abuseIPDBlookup"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="cff183ed-fc6c-4a4c-a369-2201f1b6f5a1" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="926c6e46-e950-4f0c-94df-ef69378b8e8b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="6521ff37-c98e-4201-b22a-69c1a64a48ff" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="threatjammerLookupTest" doc:id="c0d03c13-e7c9-49b1-8bf5-efd468a57392" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="threatjammerLookup Request" doc:id="c465ada6-a077-4b73-81f3-e63b6e545728" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="GET /assess/ip" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ea65bb15-644c-4ccd-a056-11ffe9850c8c" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Threatjammer_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/v1/assess/ip/{IP}" attributeName="path" />
+					<munit-tools:with-attribute whereValue="100000" attributeName="responseTimeout" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;    "self": "/v1/assess/ip/104.21.96.65",&#10;    "score": 0,&#10;    "risk": "LOW",&#10;    "datasets": [],&#10;    "sources": [],&#10;    "first_appearance": [],&#10;    "last_appearance": [],&#10;    "asn": "/v1/asn/13335",&#10;    "asn_prefix": "/v1/asn/prefix/104.16.0.0%252F13",&#10;    "reason": "No risk found.",&#10;    "denylisted": "",&#10;    "allowlisted": "",&#10;    "datacenter": "/v1/datacenter/CLOUDFLARE_INC",&#10;    "datacenter_prefix": "/v1/datacenter/prefix/104.16.0.0%252F12"&#10;}]' doc:name="Set Response Payload" doc:id="caa02b7c-a015-4f27-8fde-9a7333d9c089" />
+			<flow-ref doc:name="threatjammerLookup" doc:id="632f55ec-3964-4650-b264-d1b7f63f174f" name="threatjammerLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="27423e37-c8c0-4087-83ad-5351413b1ece" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="bf31bc8a-7bcb-478c-9975-8e7f7629f3aa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4f561d46-df86-488b-956d-6cda1161dbc3" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="virustotalLookupTest" doc:id="01f05d8e-6ca5-4106-a7ea-aff53665afb5" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="virustotalLookup Request" doc:id="b641a783-ccf7-4d52-a7b6-80898c8fde2e" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="GET /v3/ip_addresses" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d940e74a-d3aa-4202-9d06-f7291d6042c9" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Virustotal_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/api/v3/ip_addresses/{IP}" attributeName="path" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Reduce result" doc:id="18bf75bf-1169-4838-ac59-cc7788983c3a" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"owner": "Shenzhen Tencent Computer Systems Company Limited",
+    "country": "CN",
+    "found_hostnames": "null",
+    "virustotal_rating": "harmless",
+    "aggregated_ratings": "harmless"
+ }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[{&#10;  "owner": "Shenzhen Tencent Computer Systems Company Limited",&#10;  "country": "CN",&#10;  "found_hostnames": null,&#10;  "virustotal_rating": {&#10;    "harmless": 82,&#10;    "malicious": 0,&#10;    "suspicious": 0,&#10;    "undetected": 12,&#10;    "timeout": 0&#10;  },&#10;  "aggregated_ratings": {&#10;    "Bkav": "harmless, clean",&#10;    "CMC Threat Intelligence": "harmless, clean",&#10;    "Snort IP sample list": "harmless, clean",&#10;    "0xSI_f33d": "undetected, unrated",&#10;    "Armis": "harmless, clean",&#10;    "ViriBack": "harmless, clean",&#10;    "Comodo Valkyrie Verdict": "harmless, clean",&#10;    "PhishLabs": "undetected, unrated",&#10;    "K7AntiVirus": "harmless, clean",&#10;    "CINS Army": "harmless, clean",&#10;    "Quttera": "harmless, clean",&#10;    "OpenPhish": "harmless, clean",&#10;    "VX Vault": "harmless, clean",&#10;    "Web Security Guard": "harmless, clean",&#10;    "Scantitan": "harmless, clean",&#10;    "AlienVault": "harmless, clean",&#10;    "Sophos": "harmless, clean",&#10;    "Phishtank": "harmless, clean",&#10;    "EonScope": "harmless, clean",&#10;    "CyberCrime": "harmless, clean",&#10;    "Spam404": "harmless, clean",&#10;    "SecureBrain": "harmless, clean",&#10;    "Hoplite Industries": "harmless, clean",&#10;    "CRDF": "harmless, clean",&#10;    "Fortinet": "harmless, clean",&#10;    "alphaMountain.ai": "harmless, clean",&#10;    "Lionic": "harmless, clean",&#10;    "Cyble": "harmless, clean",&#10;    "Seclookup": "harmless, clean",&#10;    "Virusdie External Site Scan": "harmless, clean",&#10;    "Google Safebrowsing": "harmless, clean",&#10;    "SafeToOpen": "undetected, unrated",&#10;    "ADMINUSLabs": "harmless, clean",&#10;    "ESTsecurity": "harmless, clean",&#10;    "Juniper Networks": "harmless, clean",&#10;    "Heimdal Security": "harmless, clean",&#10;    "AutoShun": "undetected, unrated",&#10;    "Trustwave": "harmless, clean",&#10;    "AICC (MONITORAPP)": "harmless, clean",&#10;    "CyRadar": "harmless, clean",&#10;    "Dr.Web": "harmless, clean",&#10;    "Emsisoft": "harmless, clean",&#10;    "Abusix": "harmless, clean",&#10;    "Webroot": "harmless, clean",&#10;    "Avira": "harmless, clean",&#10;    "securolytics": "harmless, clean",&#10;    "Antiy-AVL": "harmless, clean",&#10;    "Acronis": "harmless, clean",&#10;    "Quick Heal": "harmless, clean",&#10;    "URLQuery": "undetected, unrated",&#10;    "Viettel Threat Intelligence": "harmless, clean",&#10;    "DNS8": "harmless, clean",&#10;    "benkow.cc": "harmless, clean",&#10;    "EmergingThreats": "harmless, clean",&#10;    "Chong Lua Dao": "harmless, clean",&#10;    "Yandex Safebrowsing": "harmless, clean",&#10;    "MalwareDomainList": "harmless, clean",&#10;    "Lumu": "undetected, unrated",&#10;    "zvelo": "harmless, clean",&#10;    "Kaspersky": "undetected, unrated",&#10;    "Segasec": "harmless, clean",&#10;    "Sucuri SiteCheck": "harmless, clean",&#10;    "desenmascara.me": "harmless, clean",&#10;    "URLhaus": "harmless, clean",&#10;    "PREBYTES": "harmless, clean",&#10;    "StopForumSpam": "harmless, clean",&#10;    "Blueliv": "harmless, clean",&#10;    "Netcraft": "undetected, unrated",&#10;    "ZeroCERT": "harmless, clean",&#10;    "Phishing Database": "harmless, clean",&#10;    "MalwarePatrol": "harmless, clean",&#10;    "MalBeacon": "harmless, clean",&#10;    "IPsum": "harmless, clean",&#10;    "Malwared": "harmless, clean",&#10;    "BitDefender": "harmless, clean",&#10;    "GreenSnow": "harmless, clean",&#10;    "G-Data": "harmless, clean",&#10;    "StopBadware": "undetected, unrated",&#10;    "Cyan": "undetected, unrated",&#10;    "SCUMWARE.org": "harmless, clean",&#10;    "malwares.com URL checker": "harmless, clean",&#10;    "NotMining": "undetected, unrated",&#10;    "Forcepoint ThreatSeeker": "undetected, unrated",&#10;    "Certego": "harmless, clean",&#10;    "ESET": "harmless, clean",&#10;    "Threatsourcing": "harmless, clean",&#10;    "MalSilo": "harmless, clean",&#10;    "Nucleon": "harmless, clean",&#10;    "BADWARE.INFO": "harmless, clean",&#10;    "ThreatHive": "harmless, clean",&#10;    "Tencent": "harmless, clean",&#10;    "Bfore.Ai PreCrime": "harmless, clean",&#10;    "Baidu-International": "harmless, clean"&#10;  }&#10;}]' doc:name="Set Response Payload" doc:id="5a53f0f7-97c2-4946-af91-41e14274a3bf" />
+			<flow-ref doc:name="virustotalLookup" doc:id="644186a3-095f-4dd2-bc34-ab38a4341053" name="virustotalLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="9ece4713-742a-4992-b5ad-60122aa5ed12" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7461e21a-c17a-4d38-a8fc-4feda07e1537" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="8865e632-4613-4321-913f-4bbc61659f3d" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="siteRequestAggregationTest" doc:id="bd361e87-0ac9-41ee-876f-0fba4839d38f" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock cloudmersiveScanWebsite Flow" doc:id="d3aa2773-8e20-494e-ab60-fb75b5a26b41" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cloudmersiveScanWebsite Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ef521431-6a52-49d5-bfa0-cfb47e9f233f" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="cloudmersiveScanWebsite" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="siteLookupResult" doc:id="53befbc0-5f8a-4f69-b67c-6a013c68c5f5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="siteLookupResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "CleanResult": "true",
+    "WebsiteThreatType": "None",
+    "FoundViruses": "null",
+    "WebsiteHttpResponseCode": "200"
+}
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='siteToScan=="google.com"' doc:name="siteToScan" doc:id="2ec963b5-b2ad-494e-abed-3a2c9f8451e0" variableName="siteToScan"/>
+			<flow-ref doc:name="siteRequestAggregation" doc:id="f4bdf8e7-df8b-44b6-b1ae-eb7d256afa84" name="siteRequestAggregation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="7f3fb95c-a5f5-4770-a11e-95db4091029f" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ad34e981-2fe3-4709-8174-bd7b2450911b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7a96fc8b-d9be-41bc-aefe-cfd4d3f6bba3" is="#[MunitTools::notNullValue()]" expression="#[vars.siteLookUpResult]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="siteGetValidateTest-valid-siteToScan" doc:id="dec8580d-f79f-4833-9792-b2026e1b79dc" description="Test">
+		<munit:execution>
+			<ee:transform doc:name="Set siteToScan" doc:id="6be6f371-00f9-4066-9dd2-2f4ac4d175c5">
+				<ee:message>
+					<ee:set-attributes><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'site':'google.com'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="siteGetValidate" doc:id="98436cdf-c9a3-42fb-bab4-dbf0b051345e" name="siteGetValidate" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="5dbb7120-f6fd-4bdc-b80a-48271c249a74" processor="logger">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="97b738ed-6d21-4ab9-bc85-7a69fdb33b5b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="vars.siteToScan==google.com" doc:id="9cb59d0e-5c6d-4399-ab44-54767b9912c5" actual="#[vars.siteToScan]" expected='#["google.com"]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="siteGetValidateTest-invalid-site-null" doc:id="14a9ba91-394b-4b47-b3e3-1d0acc758708" description="Test" expectedErrorType="APP:SITE_NULL">
+		<munit:execution>
+			<ee:transform doc:name="Set site is null" doc:id="83b9af70-81ab-444a-b23f-c0bc72605a66">
+				<ee:message>
+					<ee:set-attributes><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		
+		}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="siteGetValidate" doc:id="e4b39b15-b9f1-4c40-9294-9730cbace948" name="siteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="siteGetValidateTest-invalid-site-empty" doc:id="d78f99ba-0783-40ee-b9a3-f5d9aba14f4c" description="Test" expectedErrorType="APP:SITE_EMPTY">
+		<munit:execution>
+			<ee:transform doc:name="Set site is empty" doc:id="d28058a6-4401-4758-b2fb-aa160ee01678" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'site': ' '
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="siteGetValidate" doc:id="6de85f04-b937-40d3-9b6f-3f4a0ace6287" name="siteGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="ipGetValidateTest-valid-IPtoScan" doc:id="3bd8b631-68a8-449d-bcde-e71b2a8fb086" description="Test">
+		<munit:execution>
+			<ee:transform doc:name="Set IPtoScan" doc:id="803bc5ca-fc57-4dfa-8a71-b41d66d704b1">
+				<ee:message>
+					<ee:set-attributes><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'IP':'118.25.6.39'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="ipGetValidate" doc:id="8af9b644-9240-4a1b-bd98-a90806995f60" name="ipGetValidate" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="8f70099d-e6c4-411a-9d6d-7cc8aae35182" processor="logger">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log after validated" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d002d802-ae7c-43c9-aee7-680e0aa7bc42" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="df925ce9-c20b-4689-8d36-1b489e29ca6f" actual="#[vars.IPtoScan]" expected='#["118.25.6.39"]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ipGetValidateTest-invalid-IP-null" doc:id="518a120f-c2f6-45b1-b2db-f75294740a90" description="Test" expectedErrorType="APP:IP_NULL">
+		<munit:execution >
+			<ee:transform doc:name="Set IP is null" doc:id="18b63d69-bfb0-4c13-ba7a-31d0a2b1211a" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="ipGetValidate" doc:id="1b26ebbd-a79e-4d9e-874e-7f220385705b" name="ipGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="ipGetValidateTest-IP-invalid" doc:id="15e3a7a1-3c9e-4469-964c-66ab3a985d5a" description="Test" expectedErrorType="APP:IP_INVALID">
+		<munit:execution >
+			<ee:transform doc:name="Set IP is invalid" doc:id="75b06043-ca83-44ce-be39-ff8c2ef6a7a5" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'IP':'118.25.39'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="ipGetValidate" doc:id="838a04ad-b61b-4a71-9a50-e17005c0560b" name="ipGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="ipGetValidateTest-invalid-IP-local" doc:id="2ce24875-eeba-4b0c-b7cf-5b531426777f" description="Test" expectedErrorType="APP:IP_LOCAL">
+		<munit:execution >
+			<ee:transform doc:name="Set IP is local" doc:id="409d5aac-df1b-47a6-834b-200ee4719237" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'IP':'127.0.0.1'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="ipGetValidate" doc:id="6cc4bcd6-5a1c-418c-9000-a16db8c17452" name="ipGetValidate" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="dnsLookupTest" doc:id="a0955bec-99cf-4d05-94aa-16450a855a15" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set dnsLookUpResult" doc:id="9c33898c-743e-454a-986f-461bdb47fc7a" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="dnsLookUpResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "timestamp": 1665475908382,
+    "apiStatus": "success",
+    "apiCode": 200,
+    "meta": {
+        "url": "https://names.com/LOL.com",
+        "test": {
+            "id": "d4k7sryy04jtqmqjcti2zz3dtsfn68ya"
+        }
+    },
+    "data": {
+        "A": [
+            {
+                "address": "199.250.218.241",
+                "ttl": 300
+            }
+        ],
+        "MX": [
+            {
+                "exchange": "names.com",
+                "priority": 0
+            }
+        ],
+        "NS": [
+            "ns2.inmotionhosting.com",
+            "ns1.inmotionhosting.com"
+        ],
+        "SOA": {
+            "nsname": "ns1.inmotionhosting.com",
+            "hostmaster": "machinemessages.forum.inmotionhosting.com",
+            "serial": 2022100201,
+            "refresh": 3600,
+            "retry": 1800,
+            "expire": 1209600,
+            "minttl": 86400
+        },
+        "TXT": [
+            [
+                "v=spf1 ip4:199.250.218.241 +a +mx -all"
+            ]
+        ]
+    }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="81ff07dd-b7a6-4274-a9bb-8f07adc5cf95" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="POST /dnsrecord" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d78f4991-6adc-41a9-8309-df7056679d26" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="DNSLookUp_Request" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/dnsrecord" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.dnsLookUpResult]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set IPtoScan" doc:id="068a5d30-bb65-4e79-acfd-195c68e5043d" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="IPtoScan" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"address": "172.253.115.138"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='siteToScan=="google.com"' doc:name="siteToScan " doc:id="ed601260-f095-42df-be20-0385fb67d72d" variableName="siteToScan "/>
+			<flow-ref doc:name="dnsLookup" doc:id="71e0ced2-8f9e-49f3-ba8f-31e9f0568c71" name="dnsLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="eef7d52b-123d-49a8-8e22-eaed8c8b6d3f" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="16877360-9a4e-4e98-a4f7-ba0bce54b5c8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3593e189-f80d-431b-958b-62703b4746da" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="dnsLookupTest-failedRequest" doc:id="8289f93f-cdc0-4570-bb38-941eb108ca9c" description="Test" expectedErrorType="APP:DNS_FAILED">
+		<munit:execution >
+			<set-variable value='siteToScan==" "' doc:name="siteToScan is empty" doc:id="98606593-8283-4941-9bc0-fdb1ed38112e" variableName="siteToScan " />
+			<flow-ref doc:name="dnsLookup" doc:id="6bb3ed06-f5bd-40cb-8c03-a24b6bc595ee" name="dnsLookup" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="ipLookupTest" doc:id="287266b9-6dfe-4569-a26c-ab9cabb8a810" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="Set IPgetValidateResult" doc:id="92076797-e07c-4655-b3bd-db0bad7673c8" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'IP':'118.25.6.39'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+				<ee:variables >
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="IPgetValidate flow" doc:id="6fc62200-4519-4916-9050-879a3c8b4d1e" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="IPgetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="01e54131-ab31-4bec-9203-3647d5c02f58" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipGetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="getCredentials" doc:id="5eef4cc6-b044-419b-ab46-da731aeacb5b" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="getCredentials Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="aa605a1f-c197-4ff9-981f-cdf448079dae" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="name" />
+					<munit-tools:with-attribute whereValue="getCredentials Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="aa605a1f-c197-4ff9-981f-cdf448079dae" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="getCredentials" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set ipRequestAggregationResult" doc:id="828be557-4cde-4f6d-b016-e5f642601376" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="ipRequestAggregationResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IP": "118.25.6.39",
+  "owner": "Shenzhen Tencent Computer Systems Company Limited",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "CN",
+  "datacenter": "/v1/datacenter/TENCENT_CLOUD",
+  "abuseIPDB": {
+    "total_reports": 1,
+    "confidence_score": 8
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "harmless, clean",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "undetected, unrated",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="ipRequestAggregation Flow" doc:id="06a624f3-50f8-4275-acd0-eb63640d5ef0" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ipRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0d5e37f9-dc4b-4e8a-a0c1-50c597730646" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.ipRequestAggregationResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='IPtoScan=="118.25.6.39"' doc:name="IPtoScan" doc:id="346096d0-b1b0-4042-bbb2-63264c972a70" variableName="IPtoScan"/>
+			<flow-ref doc:name="ipLookup" doc:id="a6f3ddbf-ebd0-47e3-9c70-b73873baf89f" name="ipLookup"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify last logger call" doc:id="7936d81d-1a16-4d1d-85b2-455dec4dc50f" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b5e6d98e-3b94-42df-a96e-0aa5a0c3eec2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="bdcf1ecc-aaba-4680-88db-6fc5a17f020f" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ipRequestAggregationTest" doc:id="bcc74ba5-1c07-467a-9b6d-f82738cd5dd8" description="Test">
+		<munit:behavior >
+			<ee:transform doc:name="set abuseIPDB response" doc:id="e531302b-04e8-4441-ab43-281874fb1055" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="abuseIPDBResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "data": {
+      "ipAddress": "118.25.6.39",
+      "isPublic": true,
+      "ipVersion": 4,
+      "isWhitelisted": false,
+      "abuseConfidenceScore": 100,
+      "countryCode": "CN",
+      "countryName": "China",
+      "usageType": "Data Center/Web Hosting/Transit",
+      "isp": "Tencent Cloud Computing (Beijing) Co. Ltd",
+      "domain": "tencent.com",
+      "hostnames": [],
+      "totalReports": 1,
+      "numDistinctUsers": 1,
+      "lastReportedAt": "2018-12-20T20:55:14+00:00",
+      "reports": [
+        {
+          "reportedAt": "2018-12-20T20:55:14+00:00",
+          "comment": "Dec 20 20:55:14 srv206 sshd[13937]: Invalid user oracle from 118.25.6.39",
+          "categories": [
+            18,
+            22
+          ],
+          "reporterId": 1,
+          "reporterCountryCode": "US",
+          "reporterCountryName": "United States"
+        }
+      ]
+    }
+  }]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="abuseIPDBlookup flow" doc:id="73a995bb-3f6d-45fa-8073-085b4bec675a" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="abuseIPDBlookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="741c8f55-d8db-41a2-a480-3adfa58d50b0" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="abuseIPDBlookup" attributeName="name" />
+					<munit-tools:with-attribute whereValue="abuseIPDBlookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="741c8f55-d8db-41a2-a480-3adfa58d50b0" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="abuseIPDBlookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.abuseIPDBResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="set cloudmersiveIsThreat response" doc:id="edd7b85a-3c7f-4321-98b8-894cbd4205f5" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="cloudmersiveIsThreatResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "IsThreat": "false",
+    "ThreatType": ""
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="cloudmersiveIsThreatLookup flow" doc:id="16ff5363-4936-49de-828d-f24126e18d6c" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cloudmersiveIsThreatLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b86d489f-7b98-495c-8b6c-bafe78471e80" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="cloudmersiveIsThreatLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.cloudmersiveIsThreatResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="set cloudmersiveIsBotResult response" doc:id="57c5ae1f-4e17-48d8-81fb-c19d0c1eda0a" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="cloudmersiveIsBotResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IsBot": "false"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="cloudmersiveIsBotLookup flow" doc:id="d94ecf90-676b-4da3-9a4e-1cd39c1664ca" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cloudmersiveIsBotLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5d318f2f-7291-44f9-b33a-1d4a2c8dc391" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="cloudmersiveIsBotLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.cloudmersiveIsBotResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="set threatJammer response" doc:id="c5d6052a-a314-4c7b-b818-37bd1e6a401f" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="threatjammerResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "self": "/v1/assess/ip/104.21.96.65",
+    "score": 0,
+    "risk": "LOW",
+    "datasets": [],
+    "sources": [],
+    "first_appearance": [],
+    "last_appearance": [],
+    "asn": "/v1/asn/13335",
+    "asn_prefix": "/v1/asn/prefix/104.16.0.0%252F13",
+    "reason": "No risk found.",
+    "denylisted": "",
+    "allowlisted": "",
+    "datacenter": "/v1/datacenter/CLOUDFLARE_INC",
+    "datacenter_prefix": "/v1/datacenter/prefix/104.16.0.0%252F12"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="threatjammerLookup flow" doc:id="4161728e-a1ce-4b7d-a335-345281accd46" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="threatjammerLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="2a346ae5-b26e-4191-9987-d7851209b698" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="threatjammerLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.threatjammerResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set virustotal response" doc:id="3f083814-4097-460b-af12-e581d71bae56" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="virustotalResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"owner": "Shenzhen Tencent Computer Systems Company Limited",
+    "country": "CN",
+    "found_hostnames": "null",
+    "virustotal_rating": "harmless",
+    "aggregated_ratings": "harmless"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="virustotalLookup flow" doc:id="c9c3de0e-3073-485c-97fe-b0c661482898" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="virustotalLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fda408b4-4620-47f6-b808-69a424385168" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="virustotalLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.virustotalResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Form report" doc:id="82add2e3-3387-4a49-aab5-b1789f3a9ab6" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IP": "118.25.6.39",
+  "owner": "Shenzhen Tencent Computer Systems Company Limited",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "CN",
+  "datacenter": "/v1/datacenter/TENCENT_CLOUD",
+  "abuseIPDB": {
+    "total_reports": 1,
+    "confidence_score": 8
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "harmless, clean",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "undetected, unrated",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='IPtoScan == "118.25.6.39"' doc:name="IPtoScan" doc:id="d49b07f7-30c1-4e9b-b7c4-bb59a2064cd3" variableName="IPtoScan"/>
+			<flow-ref doc:name="ipRequestAggregation" doc:id="6d70c5c8-c1a7-4101-96f8-73c806d3a0ee" name="ipRequestAggregation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="345d6dcc-df97-4d1f-b2bd-ca1f3026b273" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="12cef0b1-7603-4d00-a65f-1fda27985c21" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="siteLookupTest" doc:id="965c9d0c-06ba-49d3-b54a-664b6a387994" description="Test">
+		<munit:behavior>
+			<ee:transform doc:name="Set siteGetValidate" doc:id="e5bfe5b2-7d08-4290-83c3-41644c5d0e71">
+				<ee:message>
+					<ee:set-attributes><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'site':'google.com'
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="siteGetValidate" doc:id="d9a70519-b722-456c-bc11-013c0ce31454" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="siteGetValidate Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b498eb5b-9b52-472c-bfec-60db00eecbd4" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="siteGetValidate" attributeName="name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set dnsLookup response" doc:id="383ee002-20bf-4487-9193-b9067ff3522e">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="dnsResult"><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "timestamp": 1665475908382,
+    "apiStatus": "success",
+    "apiCode": 200,
+    "meta": {
+        "url": "https://names.com/LOL.com",
+        "test": {
+            "id": "d4k7sryy04jtqmqjcti2zz3dtsfn68ya"
+        }
+    },
+    "data": {
+        "A": [
+            {
+                "address": "199.250.218.241",
+                "ttl": 300
+            }
+        ],
+        "MX": [
+            {
+                "exchange": "names.com",
+                "priority": 0
+            }
+        ],
+        "NS": [
+            "ns2.inmotionhosting.com",
+            "ns1.inmotionhosting.com"
+        ],
+        "SOA": {
+            "nsname": "ns1.inmotionhosting.com",
+            "hostmaster": "machinemessages.forum.inmotionhosting.com",
+            "serial": 2022100201,
+            "refresh": 3600,
+            "retry": 1800,
+            "expire": 1209600,
+            "minttl": 86400
+        },
+        "TXT": [
+            [
+                "v=spf1 ip4:199.250.218.241 +a +mx -all"
+            ]
+        ]
+    }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="dnsLookup flow" doc:id="70018db5-5a80-4d98-9944-1a208f06404c" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="dnsLookup Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fa3f2652-f879-4a52-9184-e654346680df" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="dnsLookup" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[vars.dnsResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="set siteRequestAggregation response" doc:id="966a12b5-af13-403e-975e-af4cd71e7eaf">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="siteLookupResult"><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "CleanResult": "true",
+    "WebsiteThreatType": "None",
+    "FoundViruses": "null",
+    "WebsiteHttpResponseCode": "200"
+}
+]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="siteRequestAggregation flow" doc:id="c2aa86b1-4ee1-4574-b536-ff543d582f1f" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="siteRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="03b99a3f-ab1e-4cc0-bb93-abf8ceb5dca1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="siteRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[vars.siteLookupResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="set ipRequestAggregation response" doc:id="db36141c-4841-4d70-9c00-4fc7f79910aa">
+				<ee:message>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="ipRequestAggregationResult" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IP": "118.25.6.39",
+  "owner": "Shenzhen Tencent Computer Systems Company Limited",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "CN",
+  "datacenter": "/v1/datacenter/TENCENT_CLOUD",
+  "abuseIPDB": {
+    "total_reports": 1,
+    "confidence_score": 8
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "harmless, clean",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "undetected, unrated",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<munit-tools:mock-when doc:name="ipRequestAggregation flow" doc:id="ae047739-6a5f-4424-8938-ead6d14388ec" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="ipRequestAggregation Flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="06e2d978-2481-426a-b0cf-47f92456d3f5" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="ipRequestAggregation" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[vars.ipRequestAggregationResult]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<ee:transform doc:name="Set site and IP result" doc:id="5ab4709c-d548-43f3-ba5a-0b50c43f3ccd">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "site": "google.com",
+  "siteLookup": {
+    "isClean": true,
+    "threatType": "None",
+    "viruses": "None",
+    "siteResponseCode": 200
+  },
+  "IP": "142.250.188.46",
+  "owner": "GOOGLE",
+  "usage_type": "Data Center/Web Hosting/Transit",
+  "found_hostnames": "[]",
+  "country": "US",
+  "datacenter": "/v1/datacenter/GOOGLE",
+  "abuseIPDB": {
+    "total_reports": 0,
+    "confidence_score": 0
+  },
+  "threatjammer": {
+    "risk_level": "LOW",
+    "reason_phrase": "No risk found."
+  },
+  "cloudmersive": {
+    "is_bot": false,
+    "is_threat": false,
+    "threat_type": ""
+  },
+  "virustotal": {
+    "ratings": {
+      "harmless": 83,
+      "malicious": 0,
+      "suspicious": 0,
+      "undetected": 12,
+      "timeout": 0
+    }
+  },
+  "other_ratings": {
+    "Bkav": "harmless, clean",
+    "CMC Threat Intelligence": "harmless, clean",
+    "Snort IP sample list": "harmless, clean",
+    "0xSI_f33d": "undetected, unrated",
+    "Armis": "harmless, clean",
+    "ViriBack": "harmless, clean",
+    "Comodo Valkyrie Verdict": "undetected, unrated",
+    "PhishLabs": "undetected, unrated",
+    "K7AntiVirus": "harmless, clean",
+    "CINS Army": "harmless, clean",
+    "Quttera": "harmless, clean",
+    "PrecisionSec": "harmless, clean",
+    "OpenPhish": "harmless, clean",
+    "VX Vault": "harmless, clean",
+    "Web Security Guard": "harmless, clean",
+    "Scantitan": "harmless, clean",
+    "AlienVault": "harmless, clean",
+    "Sophos": "harmless, clean",
+    "Phishtank": "harmless, clean",
+    "EonScope": "harmless, clean",
+    "CyberCrime": "harmless, clean",
+    "Spam404": "harmless, clean",
+    "SecureBrain": "harmless, clean",
+    "Hoplite Industries": "harmless, clean",
+    "CRDF": "harmless, clean",
+    "Fortinet": "harmless, clean",
+    "alphaMountain.ai": "harmless, clean",
+    "Lionic": "harmless, clean",
+    "Cyble": "harmless, clean",
+    "Seclookup": "harmless, clean",
+    "Virusdie External Site Scan": "harmless, clean",
+    "Google Safebrowsing": "harmless, clean",
+    "SafeToOpen": "undetected, unrated",
+    "ADMINUSLabs": "harmless, clean",
+    "ESTsecurity": "harmless, clean",
+    "Juniper Networks": "harmless, clean",
+    "Heimdal Security": "harmless, clean",
+    "AutoShun": "undetected, unrated",
+    "Trustwave": "harmless, clean",
+    "AICC (MONITORAPP)": "harmless, clean",
+    "CyRadar": "harmless, clean",
+    "Dr.Web": "harmless, clean",
+    "Emsisoft": "harmless, clean",
+    "Abusix": "harmless, clean",
+    "Webroot": "harmless, clean",
+    "Avira": "harmless, clean",
+    "securolytics": "harmless, clean",
+    "Antiy-AVL": "harmless, clean",
+    "Acronis": "harmless, clean",
+    "Quick Heal": "harmless, clean",
+    "URLQuery": "undetected, unrated",
+    "Viettel Threat Intelligence": "harmless, clean",
+    "DNS8": "harmless, clean",
+    "benkow.cc": "harmless, clean",
+    "EmergingThreats": "harmless, clean",
+    "Chong Lua Dao": "harmless, clean",
+    "Yandex Safebrowsing": "harmless, clean",
+    "MalwareDomainList": "harmless, clean",
+    "Lumu": "undetected, unrated",
+    "zvelo": "harmless, clean",
+    "Kaspersky": "undetected, unrated",
+    "Segasec": "harmless, clean",
+    "Sucuri SiteCheck": "harmless, clean",
+    "desenmascara.me": "harmless, clean",
+    "URLhaus": "harmless, clean",
+    "PREBYTES": "harmless, clean",
+    "StopForumSpam": "harmless, clean",
+    "Blueliv": "harmless, clean",
+    "Netcraft": "undetected, unrated",
+    "ZeroCERT": "harmless, clean",
+    "Phishing Database": "harmless, clean",
+    "MalwarePatrol": "harmless, clean",
+    "MalBeacon": "harmless, clean",
+    "IPsum": "harmless, clean",
+    "Malwared": "harmless, clean",
+    "BitDefender": "harmless, clean",
+    "GreenSnow": "harmless, clean",
+    "G-Data": "harmless, clean",
+    "StopBadware": "undetected, unrated",
+    "Cyan": "undetected, unrated",
+    "SCUMWARE.org": "harmless, clean",
+    "malwares.com URL checker": "harmless, clean",
+    "NotMining": "undetected, unrated",
+    "Forcepoint ThreatSeeker": "harmless, clean",
+    "Certego": "harmless, clean",
+    "ESET": "harmless, clean",
+    "Threatsourcing": "harmless, clean",
+    "MalSilo": "harmless, clean",
+    "Nucleon": "harmless, clean",
+    "BADWARE.INFO": "harmless, clean",
+    "ThreatHive": "harmless, clean",
+    "Tencent": "harmless, clean",
+    "Bfore.Ai PreCrime": "harmless, clean",
+    "Baidu-International": "harmless, clean"
+  }
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</munit:behavior>
+		<munit:execution>
+			<set-variable value='IPtoScan=="118.25.6.39"' doc:name="IPtoScan " doc:id="6608266d-d903-48d1-a6ca-e40417808fdd" variableName="IPtoScan" />
+			<flow-ref doc:name="siteLookup" doc:id="33e6670e-4f18-4a94-86c4-f252797f9a46" name="siteLookup" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="b339ff1d-a396-4d00-98c8-ddfd093f182f" processor="logger">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Log at exit" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d434343d-9fcf-49c6-b0bc-6ec2f7175f30" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="1dab7c83-f8dd-41f6-b65f-19af5921f48f" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+</mule>

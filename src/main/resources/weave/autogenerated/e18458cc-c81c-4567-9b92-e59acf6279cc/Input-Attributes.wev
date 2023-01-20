@@ -1,0 +1,15 @@
+%dw 2.0
+
+type auto_e18458cc_c81c_4567_9b92_e59acf6279cc_Input_Attributes = {|
+  replyToAddresses*: Array<String>, 
+  subject*: String, 
+  bccAddresses*: Array<String>, 
+  ccAddresses*: Array<String>, 
+  fromAddresses*: Array<String>, 
+  receivedDate*?: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  toAddresses*: Array<String>, 
+  sentDate*?: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  number*: Number, 
+  headers*: { _?: String }
+|}
+

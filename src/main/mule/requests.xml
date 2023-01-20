@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<flow name="ipLookup" doc:id="e55d91d9-8a5b-4da8-8503-bdd4b68b0c70" >
+		<logger level="INFO" doc:name="Log at start" doc:id="b927f6c0-13da-4ccb-ac14-ff8d2d83446b" message='#["Initiated IP lookup at " ++ now()]' />
+		<flow-ref doc:name="IPgetValidate Flow" doc:id="01e54131-ab31-4bec-9203-3647d5c02f58" name="ipGetValidate" />
+		<flow-ref doc:name="getCredentials Flow" doc:id="aa605a1f-c197-4ff9-981f-cdf448079dae" name="getCredentials"/>
+		<flow-ref doc:name="ipRequestAggregation Flow" doc:id="0d5e37f9-dc4b-4e8a-a0c1-50c597730646" name="ipRequestAggregation"/>
+		<logger level="INFO" doc:name="Log at exit" doc:id="b5e6d98e-3b94-42df-a96e-0aa5a0c3eec2" message='#["Finished IP lookup at " ++ now()]' />
+	</flow>
+	<flow name="siteLookup" doc:id="b468aa9e-5784-4a2b-b43e-db0eea0b4fef" >
+		<logger level="INFO" doc:name="Log at start" doc:id="8841a1d4-60f4-4451-97ce-44ec8101c64d" message='#["Initiated site lookup at " ++ now()]' />
+		<flow-ref doc:name="siteGetValidate Flow" doc:id="b498eb5b-9b52-472c-bfec-60db00eecbd4" name="siteGetValidate"/>
+		<flow-ref doc:name="getCredentials Flow" doc:id="272d8f03-9810-4ab0-9c11-cca90f066638" name="getCredentials"/>
+		<flow-ref doc:name="dnsLookup Flow" doc:id="fa3f2652-f879-4a52-9184-e654346680df" name="dnsLookup"/>
+		<flow-ref doc:name="siteRequestAggregation Flow" doc:id="03b99a3f-ab1e-4cc0-bb93-abf8ceb5dca1" name="siteRequestAggregation"/>
+		<flow-ref doc:name="ipRequestAggregation Flow" doc:id="06e2d978-2481-426a-b0cf-47f92456d3f5" name="ipRequestAggregation"/>
+		<ee:transform doc:name="Add site result to IP result" doc:id="a695d13c-540f-4c27-9e66-05b9c7522190" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"site": vars.siteToScan,
+	"siteLookup": {
+		"isClean": vars.siteLookupResult.CleanResult default "unknown",
+		"threatType": vars.siteLookupResult.WebsiteThreatType default "unknown",
+		"viruses": vars.siteLookupResult.FoundViruses default "None",
+		"siteResponseCode": vars.siteLookupResult.WebsiteHttpResponseCode default "500"
+	}
+} ++ payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log at exit" doc:id="d434343d-9fcf-49c6-b0bc-6ec2f7175f30" message='#["Finished site lookup " ++ now()]' />
+	</flow>
+	<flow name="siteGetValidate" doc:id="13e2ad15-fe32-443f-bc87-4612d8618d4e" >
+		<set-variable value="#[message.attributes.queryParams.site]" doc:name="siteToScan" doc:id="1d1fc95b-e109-4950-95d0-6881987a8cfd" variableName="siteToScan" />
+		<validation:is-not-null doc:name="Is siteToScan present" doc:id="de5f5fd2-2a4f-4758-b44c-046175eec110" value="#[vars.siteToScan]" message='#["No site to scan specified"]'>
+			<error-mapping sourceType="VALIDATION:NULL" targetType="APP:SITE_NULL" />
+		</validation:is-not-null>
+		<validation:is-not-blank-string doc:name="Is siteToScan not empty" doc:id="2eb87e3c-af88-4da2-97e2-b11a9c918fc2" value="#[vars.siteToScan]" message='#["Empty site field specified"]'>
+			<error-mapping targetType="APP:SITE_EMPTY" sourceType="VALIDATION:BLANK_STRING"/>
+		</validation:is-not-blank-string>
+		<logger level="INFO" doc:name="Log after validated" doc:id="97b738ed-6d21-4ab9-bc85-7a69fdb33b5b" message='#["site=" ++ (vars.siteToScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="797a688a-7f3e-4eb9-9d57-49fba07fe06d" type="APP:SITE_NULL">
+				<logger level="INFO" doc:name="Failed processing request" doc:id="3f53de52-0d85-4132-a67e-1df14361921f" message='#["Failed processing request due to no site specified"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="5b47a568-c152-48e7-ba58-99e829c46997" variableName="httpStatus" />
+				<set-variable value='#["No site specified"]' doc:name="Set reasonPhrase" doc:id="b9872d2f-646b-442b-a3b8-94573cbb254c" variableName="reasonPhrase" />
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	&quot;message&quot;: &quot;No site to perform lookup on specified. Try passing it as a 'site' query parameter&quot;&#10;}]" doc:name="No site specified payload" doc:id="7a6b3fa7-094a-40ae-8ea5-bab8bfa6daa2" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1e897c9b-45f5-4e9e-b3ea-7dc61318b684" type="APP:SITE_EMPTY" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="3a840acf-0e69-4791-b56d-e5780981b34c" message='#["Failed processing request due to empty site specified"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="e67e8bed-46a5-4e70-88ef-2bad10a0b133" variableName="httpStatus" />
+				<set-variable value='#["Empty site parameter specified"]' doc:name="Set reasonPhrase" doc:id="2d1b8b2a-68b2-43d8-82dc-5fab93dfdd79" variableName="reasonPhrase" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "Empty site query parameter specified. Try passing the hostname to perform lookup on as a query parameter."&#10;}]' doc:name="Empty site specified payload" doc:id="363c79c2-f2f1-4686-9ff7-4a2172ce77ea" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="dnsLookup" doc:id="eafcd635-bec7-4786-8fe2-7870ba3f54f7" >
+		<logger level="INFO" doc:name="Log at start" doc:id="d1672d17-fae1-49e5-8839-12ca0dfc97b0" message='#["Started DNS lookup for site: " ++ vars.siteToScan as String]'/>
+		<http:request method="POST" doc:name="POST /dnsrecord" doc:id="d78f4991-6adc-41a9-8309-df7056679d26" config-ref="DNSLookUp_Request" path="/dnsrecord">
+			<error-mapping targetType="APP:DNS_FAILED" />
+			<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+    "url": vars.siteToScan
+}]]]></http:body>
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"x-api-key" : vars.dnslookupApiKey
+}]]]></http:headers>
+		</http:request>
+		<set-variable value="#[payload.data[0][0][0]]" doc:name="IPtoScan" doc:id="fef67d39-b8cd-493e-8b6c-ee9973bec864" variableName="IPtoScan" />
+		<logger level="INFO" doc:name="Log at exit" doc:id="16877360-9a4e-4e98-a4f7-ba0bce54b5c8" message='#["Finished DNS lookup for site: " ++ vars.siteToScan as String]' />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c7565edd-fdc7-42c8-8fd0-76a4c5b4fb4f" type="APP:DNS_FAILED" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="6cfc66f8-a580-4b12-a620-73581c155e21" message='#["Failed processing request due to DNS request failing"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="f762f95b-45a4-4620-8118-85ba85574a3d" variableName="httpStatus" />
+				<set-variable value='#["DNS lookup failed"]' doc:name="Set reasonPhrase" doc:id="8494509b-a48a-4cae-81dc-d4730a44ae9b" variableName="reasonPhrase" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "DNS lookup on site specified failed. Site may be invalid."&#10;}]' doc:name="DNS failed payload" doc:id="bee8b993-1c30-4fbe-81f8-47c1b4d54c3f" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="siteRequestAggregation" doc:id="35482e27-a19b-42b4-a825-4cec83728008" >
+		<logger level="INFO" doc:name="Log at start" doc:id="d8646c36-3b39-4ac5-83c2-5b92a9bdcff7" message='#["Started aggregated site lookup for site: " ++ vars.siteToScan as String]'/>
+		<flow-ref doc:name="cloudmersiveScanWebsite Flow" doc:id="ef521431-6a52-49d5-bfa0-cfb47e9f233f" name="cloudmersiveScanWebsite"/>
+		<set-variable value="#[payload]" doc:name="siteLookupResult" doc:id="b830ec20-fb46-4192-8d41-77cced311648" variableName="siteLookupResult"/>
+		<logger level="INFO" doc:name="Log at exit" doc:id="ad34e981-2fe3-4709-8174-bd7b2450911b" message='#["Finished aggregated site lookup for site: " ++ vars.siteToScan as String]' />
+	</flow>
+	<flow name="ipRequestAggregation" doc:id="ede6fa85-4ec9-41fe-8045-aaf954941e4a">
+		<logger level="INFO" doc:name="Log at start" doc:id="25192a71-187c-4df8-966e-2c770d2e0e0f" message='#["Started aggregated IP lookup for IP=" ++ vars.IPtoScan]'/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="64c43b88-6be5-4931-8eaa-eb1ef839eab9">
+			<route>
+				<flow-ref doc:name="abuseIPDBlookup Flow" doc:id="741c8f55-d8db-41a2-a480-3adfa58d50b0" name="abuseIPDBlookup" />
+			</route>
+			<route>
+				<flow-ref doc:name="cloudmersiveIsThreatLookup Flow" doc:id="b86d489f-7b98-495c-8b6c-bafe78471e80" name="cloudmersiveIsThreatLookup"/>
+			</route>
+			<route >
+				<flow-ref doc:name="cloudmersiveIsBotLookup Flow" doc:id="5d318f2f-7291-44f9-b33a-1d4a2c8dc391" name="cloudmersiveIsBotLookup"/>
+			</route>
+			<route >
+				<flow-ref doc:name="threatjammerLookup Flow" doc:id="2a346ae5-b26e-4191-9987-d7851209b698" name="threatjammerLookup"/>
+			</route>
+			<route >
+				<flow-ref doc:name="virustotalLookup Flow" doc:id="fda408b4-4620-47f6-b808-69a424385168" name="virustotalLookup"/>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Form report" doc:id="45cc88a7-1e94-4e0b-91c7-731aa39d20bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var abuseIPDB = payload[0].payload
+var threatjammer = payload[3].payload
+var virustotal = payload[4].payload
+---
+{
+    "IP": abuseIPDB.data.ipAddress,
+    "owner": virustotal.owner default "unknown",
+    "usage_type": abuseIPDB.data.usageType default "unknown",
+    "found_hostnames": virustotal.found_hostnames default "[]",
+    "country": abuseIPDB.data.countryCode default "unknown",
+    "datacenter": threatjammer.datacenter default "unknown",
+    "abuseIPDB": {
+        "total_reports": abuseIPDB.data.totalReports,
+        "confidence_score": abuseIPDB.data.abuseConfidenceScore
+    },
+    "threatjammer": {
+        "risk_level": threatjammer.risk,
+        "reason_phrase": threatjammer.reason
+    },
+    "cloudmersive": {
+        "is_bot": payload[2].payload.IsBot,
+        "is_threat": payload[1].payload.IsThreat,
+        "threat_type": payload[1].payload.ThreatType,
+    },
+    "virustotal": {
+        "ratings": virustotal.virustotal_rating
+    },
+    "other_ratings": virustotal.aggregated_ratings
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log at exit" doc:id="12cef0b1-7603-4d00-a65f-1fda27985c21" message='#["Finished aggregated IP lookup for IP=" ++ vars.IPtoScan]'/>
+	</flow>
+	<flow name="ipGetValidate" doc:id="3ee100da-fd82-44b6-9a39-61e1b31ce20f" >
+		<set-variable value='#[message.attributes.queryParams.IP]' doc:name="IPtoScan" doc:id="d6a6e0f2-02a7-48b8-9c17-1b88eb839c5e" variableName="IPtoScan" />
+		<validation:is-not-null doc:name="IP not null" doc:id="389c7f77-7418-4c06-9f28-6a3982439c5e" value="#[vars.IPtoScan]" message='#["Error - IP field is null!"]'>
+			<error-mapping targetType="APP:IP_NULL" />
+		</validation:is-not-null>
+		<validation:is-ip doc:name="IP valid" doc:id="3aa9d325-e458-45ba-9822-f0c248ea277a" ip="#[vars.IPtoScan]" message='#["Error - IP not valid!"]'>
+			<error-mapping targetType="APP:IP_INVALID" />
+		</validation:is-ip>
+		<validation:is-not-denied-ip doc:name="IP not local network" doc:id="32c0197b-f339-471b-bd18-227a3d3b0dee" ipAddress="#[vars.IPtoScan]" message='#["Error - IP in local network!"]'>
+			<error-mapping targetType="APP:IP_LOCAL" />
+			<validation:deny-list >
+				<validation:ips >
+					<validation:ip value="127.0.0.1" />
+					<validation:ip value="192.168.0.1" />
+					<validation:ip value="192.168.31.1" />
+					<validation:ip value="127.0.1.1" />
+				</validation:ips>
+			</validation:deny-list>
+		</validation:is-not-denied-ip>
+		<logger level="INFO" doc:name="Log after validated" doc:id="d002d802-ae7c-43c9-aee7-680e0aa7bc42" message='#["IP=" ++ (vars.IPtoScan default " ") ++ "successfully validated"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e5d43b5e-450a-4293-a75b-0c05ba8b1467" type="APP:IP_NULL" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="68b3ec03-285d-40bc-88d9-02da3e1240f2" message='#["Failed processing request because no IP was specified"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="00910fcd-4cf7-4ac2-b815-6da2df368dea" variableName="httpStatus" />
+				<set-variable value='#["No IP specified"]' doc:name="Set reasonPhrase" doc:id="9f027410-d611-4655-8a1b-28dae1e5509f" variableName="reasonPhrase" />
+				<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	&quot;message&quot;: &quot;You have specified no IP to perform lookup on. Try adding it as an 'IP=...' query parameter.&quot;&#10;}]" doc:name="No IP payload" doc:id="1ba547dd-8454-40a3-92fa-ec9c6cb6b5f9" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="65dfa094-845b-404e-84d2-6f1d999425b5" type="APP:IP_INVALID" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="fb07ffc0-751d-49d9-b51a-73ce1e5921f8" message='#["Failed processing request because an IP specified was invalid"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="49484cea-5934-4db8-828e-281d307a9919" variableName="httpStatus" />
+				<set-variable value='#["Invalid IP specified"]' doc:name="Set reasonPhrase" doc:id="ce29b230-043f-4d5b-b898-f3e3267f24fc" variableName="reasonPhrase" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "You have specified an invalid IP as a query parameter. Syntax: IP=107.43.35.221"&#10;}]' doc:name="Invalid IP payload" doc:id="228c9caf-9ea2-46bd-ae67-f2182567b964" />
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="284dd08e-7229-4c0a-8c59-577641153aa2" type="APP:IP_LOCAL" >
+				<logger level="INFO" doc:name="Failed processing request" doc:id="6cc05a60-511f-4ff0-acdb-15717e9dafd9" message='#["Failed processing request because an IP specified was from local network"]' />
+				<set-variable value="#[400]" doc:name="httpStatus = 400" doc:id="7412b04f-50d5-4b22-9625-0c9b809e2d8a" variableName="httpStatus" />
+				<set-variable value='#["IP from local network specified"]' doc:name="Set reasonPhrase" doc:id="d48b1c97-3434-4027-a75a-8cc82f0c3ab8" variableName="reasonPhrase" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "You have specified an IP from local network. These IPs are invalid, try specifying an IP from the global network."&#10;}]' doc:name="Local IP payload" doc:id="31fdb9d7-4c0f-483b-9cd6-97aa2e29d121" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="getCredentials" doc:id="1178377c-cfd8-4d91-b362-5f448ac0a3e9" >
+		<set-variable value="${secure::threatjammer.api_key}" doc:name="threatJammerApiKey" doc:id="08484f2b-7b94-406c-b688-87c673e5efe7" variableName="threatJammerApiKey" />
+		<set-variable value="${secure::abuseIPDB.api_key}" doc:name="abuseIPDB_ApiKey" doc:id="3752c8a4-e1b5-45fc-9d09-2194310275c7" variableName="abuseIPDB_ApiKey" />
+		<set-variable value="${secure::cloudmersive.api_key}" doc:name="cloudmersiveApiKey" doc:id="9bd85f27-51ec-4756-8778-5a51b25c0c4e" variableName="cloudmersiveApiKey" />
+		<set-variable value="${secure::virustotal.api_key}" doc:name="virustotalApiKey" doc:id="6e85a068-df62-4b5b-9700-6a2679d78d04" variableName="virustotalApiKey"/>
+		<set-variable value="${secure::dnsLookUp.api_key}" doc:name="dnslookupApiKey" doc:id="59ff8701-e355-4e73-acd8-ed170bfb39e7" variableName="dnslookupApiKey" />
+	</flow>
+	<flow name="cloudmersiveScanWebsite" doc:id="cc1834b2-3386-4648-9c32-ea6a8385c069" >
+		<http:listener doc:name="Listen /scanWebsite" doc:id="b71dd266-b470-47b3-94da-6f0b2bfabec3" path="/scanWebsite" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Log at start" doc:id="1f835699-b3d1-41ea-9b61-21d2be0a95f6" message='#["Executing ScanWebsite flow"]'/>
+		<http:request method="POST" doc:name="POST /scan/website" doc:id="e840710f-81ad-4a56-bb0e-c5e34533e461" config-ref="Cloudmersive_Request" path="/virus/scan/website/" responseTimeout="30000">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+  "url" : vars.siteToScan
+}]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded",
+	"Apikey" : vars.cloudmersiveApiKey
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Log at exit" doc:id="21d5bbba-9444-476f-bcba-d50cb9c5dc92" message='#["Stopped executing"]'/>
+	</flow>
+	<flow name="cloudmersiveIsThreatLookup" doc:id="58e6e2a5-553f-4e88-b065-290913232287">
+		<logger level="INFO" doc:name="Log at start" doc:id="5f897835-0fdc-4b00-9ad9-3772a26b35b2" message='#["Executing Cloudmersive ThreatLookup"]'/>
+		<http:request method="POST" doc:name="POST /IP/isThreat" doc:id="41afe101-db6f-4532-b958-a9e1e93e3288" config-ref="Cloudmersive_Request" path="/security/threat-detection/network/ip/is-threat" responseTimeout="30000">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json 
+---
+vars.IPtoScan]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Apikey" : vars.cloudmersiveApiKey
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Log at exit" doc:id="0974ec31-64b6-4a7f-a5bb-8d4901cf6f28" message='#["Finished executing Cloudmersive ThreatLookup"]'/>
+	</flow>
+	<flow name="cloudmersiveIsBotLookup" doc:id="dfd00479-1907-4354-b269-c161ae9a49ce" >
+		<logger level="INFO" doc:name="Log at start" doc:id="6356f035-c647-468c-af9f-c5c2cbce8407" message='#["Executing Cloudmersive BotLookup"]'/>
+		<http:request method="POST" doc:name="POST /IP/isBot" doc:id="1607c0a9-4b6a-4462-9050-39ab07d8e076" config-ref="Cloudmersive_Request" path="/security/threat-detection/network/ip/is-bot" responseTimeout="30000">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+vars.IPtoScan]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Apikey" : vars.cloudmersiveApiKey
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Log at exit" doc:id="ce5efabe-694e-48db-bb2b-3e852137acbf" message='#["Finished executing Cloudmersive BotLookup"]'/>
+	</flow>
+	<flow name="abuseIPDBlookup" doc:id="c4872ea1-e4a4-42be-ad26-5d8ed026bda3" >
+		<logger level="INFO" doc:name="Log at start" doc:id="dfa84971-e09d-4bb6-94c4-4ab9f61ede3b" message='#["Executing abuseIPDB lookup"]'/>
+		<http:request method="GET" doc:name="GET /api/v2/check" doc:id="6c1e2047-693e-4258-9a2e-cfcaa917db8d" path="/api/v2/check" config-ref="AbuseIPDB_Request">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Key" : vars.abuseIPDB_ApiKey
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"ipAddress" : vars.IPtoScan
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Log at exit" doc:id="926c6e46-e950-4f0c-94df-ef69378b8e8b" message='#["Finished executing abuseIPDB lookup"]'/>
+	</flow>
+	<flow name="threatjammerLookup" doc:id="199b4ff8-63c7-42ce-ac88-dc0764614ecc" >
+		<logger level="DEBUG" doc:name="Log at start" doc:id="d4b52515-ec63-4092-95e8-4c40a675b2a2" message='#["Executing Threatjammer lookup"]'/>
+		<http:request method="GET" doc:name="GET /assess/ip" doc:id="ea65bb15-644c-4ccd-a056-11ffe9850c8c" config-ref="Threatjammer_Request" path="/v1/assess/ip/{IP}" responseTimeout="100000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : vars.threatJammerApiKey
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"IP" : vars.IPtoScan
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Log at exit" doc:id="bf31bc8a-7bcb-478c-9975-8e7f7629f3aa" message='#["Finished executing Threatjammer lookup"]'/>
+	</flow>
+	<flow name="virustotalLookup" doc:id="4e7fabee-23da-4e84-bb11-5620cc5d83c2" >
+		<logger level="INFO" doc:name="Log at start" doc:id="c1bf7af4-e943-487a-9105-44cc52344f72" message='#["Executing Virustotal lookup"]'/>
+		<http:request method="GET" doc:name="GET /v3/ip_addresses" doc:id="d940e74a-d3aa-4202-9d06-f7291d6042c9" config-ref="Virustotal_Request" path="/api/v3/ip_addresses/{IP}">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"X-Apikey" : vars.virustotalApiKey
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"IP" : vars.IPtoScan
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Reduce result" doc:id="d0b21483-bb33-4b8b-94f0-57971a43e964" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var res = payload.data.attributes
+var lar = res.last_analysis_results
+fun displ(name) = lar[name].category ++ ", " ++ lar[name].result
+---
+{
+    "owner": res.as_owner,
+    "country": res.country,
+    "found_hostnames": res."last_https_certificate".extensions."subject_alternative_name",
+    "virustotal_rating": res.last_analysis_stats,
+    "aggregated_ratings": lar mapObject (value,key,index) -> { (value.engine_name) : displ(value.engine_name),
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log at exit" doc:id="7461e21a-c17a-4d38-a8fc-4feda07e1537" message='#["Finished executing Virustotal lookup"]'/>
+	</flow>
+</mule>
