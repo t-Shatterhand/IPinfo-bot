@@ -2,7 +2,7 @@
 MuleSoft System Integration Demo 2
 
 
-This project was made by Lesia Pokotulyk and Ivan Kostroba as Softserve Software integration internship MuleSoft demo project.
+This project was made by Lesia Pokotulyk (https://github.com/LesiaQA) and Ivan Kostroba as software integration internship demo project.
 
 Functionell:
 HTTP-webserver, performs IP lookup using GET requests;
